@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block self_head_css_js %}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+<link href="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/sumoselect.css" rel="stylesheet">
+<script src="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/jquery.sumoselect.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/messages_zh.js"></script>
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.js"></script>
+{% endblock %}
+{% block content %}
+
+    <div class="king-main-container">
+        <div class="container-fluid">
+
+            <div class="panel panel-default pannel-overflow">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>添加upstream
+                </div>
+                <div class="panel-body panel-tab-body pl20 pr20">
+                    <div class="panel-content">
+                        <ul class="nav nav-tabs" id="myTab">
+                            <li class="active">
+                                <a href="#file" data-toggle="tab">基本信息</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+
+                            <div style="width: 20%;padding-top: 20px;margin-left: 3%;">
+                                <div style="width: 30%;float: left;">
+                                    <label class="control-label"  style="padding-top: 5px;float: right;">upstream名称</label>
+                                </div>
+                                <div style="width: 65%;float: right">
+                                    <input type="text" class="form-control upstream" id="upstream" name="upstream">
+                                </div>
+                            </div>
+
+                            <div class="first" style="width: 100%;padding-top: 20px;margin-left: 3%;display: inline-block;">
+                                <div style="width: 20%;float: left;">
+                                    <div style="width: 30%;float: left;">
+                                        <label class="control-label"  style="padding-top: 5px;float: right;">ip+port</label>
+                                    </div>
+                                    <div style="width: 65%;float: right">
+                                        <input type="text" class="form-control ip_port" name="ip_port">
+                                    </div>
+                                </div>
+
+                                <div style="width: 20%;float: left">
+                                    <div style="width: 30%;float: left;">
+                                        <label class="control-label" style="padding-top: 5px;float: right;">weight</label>
+                                    </div>
+                                    <div style="width: 65%;float: right">
+                                        <input type="text" class="form-control weight" name="weight">
+                                    </div>
+                                </div>
+
+                                <div style="width: 22%;float: left">
+                                    <div style="width: 30%;float: left;">
+                                        <label class="control-label" style="padding-top: 5px;float: right;">max_fails</label>
+                                    </div>
+                                    <div style="width: 65%;float: right">
+                                        <input type="text" class="form-control max_fails" name="max_fails">
+                                    </div>
+                                </div>
+
+                                <div style="width: 24%;float: left">
+                                    <div style="width: 30%;float: left">
+                                        <label class="control-label" style="padding-top: 5px;float: right;">fail_timeout</label>
+                                    </div>
+                                    <div style="width: 65%;float: right">
+                                        <input type="text" class="form-control fail_timeout" name="fail_timeout">
+                                    </div>
+                                </div>
+                                <div style="width: 10%;min-width:105px;float: left;padding-top: 5px;">
+                                    <div class="add" style="float: left;padding-left: 30%;cursor:pointer;">+</div>
+                                </div>
+                            </div>
+
+                            <div class="plugin3_demo" id="plugin3_demo7" style="display:inline-block;padding-top: 20px;margin-left: 6%;">
+                                <input type="hidden" class="bigdrop" id="plugin3_demo7_1" style="width:300px;">
+                                <input type="hidden" class="bigdrop" id="plugin3_demo7_2" style="width:300px;">
+                            </div>
+
+                            <div>
+                                <button type="submit" class="king-btn king-primary mr10 submit" style="margin:20px 6%;">保存</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'upstream_list' %}']").parent().addClass('active');
+
+    var reduce = '<div class="reduce" style="float: left;width: 50%;cursor: pointer;">&nbsp;-</div>';
+
+    $(".tab-content").delegate('.add','click',function () {
+        $(this).parent().parent().clone().insertAfter($(this).parent().parent());
+        $(this).parent().parent().next().children().eq(4).children().eq(0).html("+ /");
+        if($(this).parent().parent().next().children().eq(4).children().length == 1){
+            $(this).parent().parent().next().children().eq(4).append(reduce)
+        }
+        
+    $(".reduce").click('on', function () {
+        $(this).parent().parent().remove();
+    })
+    });
+
+    $.ajax({
+        type: 'get',
+        url: '/s/yw_deploy/deploy/api/conf_list/',
+        async:false,
+        success: function (data) {
+            levelList = JSON.parse(data);
+        }
+    });
+
+    $('#plugin3_demo7 #plugin3_demo7_1').select2({
+        data : levelList,
+        placeholder: "选择配置组"
+    });
+    $('#plugin3_demo7_2').select2({
+        data : [],
+        placeholder: "选择配置"
+    });
+    $("#plugin3_demo7_1").on("change", function(e) {
+        var data = $('#plugin3_demo7_1').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_2').val('');
+            $('#plugin3_demo7_2').select2({
+                data : data.child,
+                placeholder: "选择配置"
+            });
+        }
+    });
+
+    $(".submit").on('click', function () {
+        if($('#plugin3_demo7_1').val() == '' || $('#plugin3_demo7_2').val() == ''){
+//            swal("配置不能为空", "", "error");
+            var d = dialog({
+                width: 260,
+                title: '配置不能为空',
+                content: "配置不能为空",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false
+        }
+        if($("#upstream").val() == ''){
+//            swal("请输入upstream名称", "", "error");
+            var d = dialog({
+                width: 260,
+                title: '请输入upstream名称',
+                content: "请输入upstream名称",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false
+        }
+        data = [];
+        $(".first").each(function () {
+            item = {"upstream": $("#upstream").val(),"ip_port": $(this).find(".ip_port").val(), "weight": $(this).find(".weight").val(), "max_fails": $(this).find(".max_fails").val(), "fail_timeout": $(this).find(".fail_timeout").val(), "groups":$('#plugin3_demo7_1').select2("data").text, "infors": $('#plugin3_demo7_2').select2("data").text};
+            data.push(item)
+        });
+        if(data[0]['ip_port'] == '' && data[0]['weight'] == '' && data[0]['max_fails'] == '' && data[0]['fail_timeout'] == ''){
+//            swal("至少添加一条upstream信息", "", "error");
+            var d = dialog({
+                width: 260,
+                title: '至少添加一条upstream信息',
+                content: "至少添加一条upstream信息",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false
+        }
+
+        for(var i=0;i<data.length-1;i++){
+            for(var j=i+1;j<data.length;j++){
+                if(data[i]["ip_port"] == data[j]["ip_port"]){
+//                    swal("添加失败,包含重复的ip+port", "", "error");
+                    var d = dialog({
+                        width: 260,
+                        title: '添加失败,包含重复的ip+port',
+                        content: "添加失败,包含重复的ip+port",
+                        okValue: '关闭',
+                        ok: function() {
+                            // do something
+                        }
+                    });
+                    d.showModal();
+                    return false;
+                }
+            }
+        }
+        $.post('/s/yw_deploy/nginx/upstream/add/', {"upstreams": JSON.stringify(data)}, function (data) {
+            if(data == 'UpstreamAddSuccess'){
+//                swal("添加成功", "", "success");
+                var d = dialog({
+                    width: 260,
+                    title: '添加成功',
+                    content: "添加成功",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+                    }
+                });
+                d.showModal();
+                window.location.href = '/s/yw_deploy/nginx/upstream/list/'
+            }else{
+//                swal("添加失败", "", "error");
+                var d = dialog({
+                    width: 260,
+                    title: '添加失败',
+                    content: "添加失败",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+                    }
+                });
+                d.showModal();
+                window.location.reload();
+            }
+        })
+    })
+</script>
+
+{% endblock %}

@@ -1,0 +1,631 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load custom_tag %}
+{% block self_head_css_js %}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+
+<style>
+.ui-dialog{
+    z-index: 1051;
+}
+.ui-dialog-grid{
+    z-index: 1051;
+}
+.modal-backdrop{
+    z-index: 998;
+}
+</style>
+{% endblock %}
+
+<div class="king-main-container">
+    <div class="container-fluid">
+        <div class="panel panel-default pannel-overflow panel-list">
+            <div class="panel-heading">
+                <i class="fa fa-list-ul"></i>业务模块IP列表
+            </div>
+            <div class="panel-body">
+                <div class="panel-content">
+                    <h6><i class="fa fa-sitemap"></i>业务集</h6>
+                    <div id="plugin11_demo4" class="demo"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="task-tables">
+            <div class="task-heading">
+                <i class="fa fa-list-ul"></i> 任务列表
+            </div>
+
+            <div class="task-btns">
+                <div class="plugin3_demo" id="cmd" style="display:inline-block;position: relative; z-index: 9999">
+                    <input type="hidden" class="bigdrop" id="plugin3_demo7_1" style="width:300px;">
+                    <input type="hidden"  class="bigdrop" id="plugin3_demo7_2" style="width:300px;">
+                    <input type="hidden"  class="bigdrop" id="plugin3_demo7_3" style="width:300px;">
+                    <!--<a href="/s/yw_deploy/deploy/hosts/multi/filetrans/" type="btn" class="btn btn-info">添加任务</a>-->
+                </div>
+                <div class="panel-content">
+                    <div class="pad-ver">
+                        <button id="task-exec-btn" type="button" class="btn btn-success btn-labeled">
+                            <span class="btn-label"><i class="fa fa-bicycle"></i></span> 执行命令
+                        </button>
+                        <button onclick="TerminateTask()" id="mail-save-btn" type="button" class="btn btn-danger btn-labeled">
+                            <span class="btn-label"><i class="fa fa-stop"></i></span> 停止
+                        </button>
+                    </div>
+                </div>
+
+                <div class="task-stop-body">
+                    <div id="alert-panel" ></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-tables" style="margin-top: 17px;height: 63%">
+            <div class="task-heading">
+                <i class="fa fa-list-ul"></i> 任务结果
+            </div>
+
+            <div class="task-btns" style="height: 95%;padding-right: 0px;">
+                <div class="panel-body" style="padding-left: 0px;padding-right:0px;padding-top: 0px;margin-top: 0px;height: 100%;">
+                    <div class="pad-ver task_summary_panel">
+                        <span id="current_task_id" style="font-size:15px;background-color:gray" class="badge badge-primary">任务ID:<span></span></span>
+                        <span id="total_tasks"  style="font-size:15px;background-color:dodgerblue" class="badge badge-primary">总任务<span>n/a</span></span>
+                        <span id="finished_tasks" style="font-size:15px;background-color:darkcyan" class="badge badge-success">已完成<span>n/a</span></span>
+                        <span id="failed_tasks"  style="font-size:15px;background-color:red" class="badge badge-danger">失败<span>n/a</span></span>
+                        <span id="unkown_tasks" style="font-size:15px;background-color:darkorange" class="badge badge-warning">剩余<span>n/a</span></span>
+                        <span onclick="task_detail_toggle('chosen',this)" style="font-size:15px;background-color:gray" class="badge badge-primary"><i class="fa fa-chevron-circle-down"></i>收缩/展开</span>
+                    </div>
+                    <div class="task_result" style="height: 100%;overflow-y: auto;">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="taskRunConfirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"  style="z-index: 999;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">任务执行确认</h4>
+      </div>
+      <div class="modal-body">
+        <span id="modal_content">确定要执行么？</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="refresh_result" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" id="submit_task_confirm" url="/s/yw_deploy/deploy/api/task/action/" class="btn btn-primary">确定执行</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="changePass" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  style="z-index: 999;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">root密码修改</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" id="changePassForm" name="changePassForm">
+          <div class="form-group">
+            <label for="serverIP" class="col-sm-2 control-label" style="font-weight: 700;">服务器IP</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="serverIP" name="serverIP" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="oldPass" class="col-sm-2 control-label" style="font-weight: 700;">原密码</label>
+            <div class="col-sm-10">
+              <input type="password" class="form-control" id="oldPass" name="oldPass" placeholder="请输入原密码">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="newPass" class="col-sm-2 control-label" style="font-weight: 700;">新密码</label>
+            <div class="col-sm-10">
+              <input type="password" class="form-control" id="newPass" name="newPass" placeholder="请输入新密码">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirmPass" class="col-sm-2 control-label" style="font-weight: 700;">确认密码</label>
+            <div class="col-sm-10">
+              <input type="password" class="form-control" id="confirmPass" name="confirmPass" placeholder="请再输入一次新密码">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" id="submitPass">确认修改</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block self_footer_js %}
+
+<link rel="stylesheet" href="http://t.open.oa.com/static_api/v3/assets/jstree-3.1.1/dist/themes/default/style.min.css" />
+<script src="http://t.open.oa.com/static_api/v3/assets/jstree-3.1.1/dist/jstree.min.js"></script>
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.css" rel="stylesheet">
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2-2.0.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.js"></script>
+
+<script type="text/javascript">
+
+    window.passform = window.document.changePassForm;
+
+    $('#plugin11_demo4').jstree({
+        'core': {
+            'data': {
+                "url": "/s/yw_tocnew/api/cmdb_api/",
+                "dataType": 'json',
+                "data": function (node) {
+                    return {"id": node.id};
+                }
+            },
+            "dblclick_toggle": true,
+            "multiple": true
+        },
+        "checkbox": {
+            "keep_selected_style": false,//是否默认选中
+            "undetermined": false,
+            "three_state": false   //jstree 父节点与子节点操作互不影响(不级联)，否则点父目录就卡死了
+        },
+        "plugins": ["checkbox"]
+    }).on('ready.jstree', function (e,data) {
+        $("#plugin11_demo4 > ul > li > a > i.jstree-checkbox").hide();
+        }).on('open_node.jstree', function (e,data) {
+            $("#plugin11_demo4 > ul > li > a > i.jstree-checkbox").hide();
+            $("#plugin11_demo4 > ul > li > ul > li > a > i.jstree-checkbox").hide();
+            $("#plugin11_demo4 > ul > li > ul > li > ul > li > a > i.jstree-checkbox").hide();
+        });
+
+    $.ajax('/s/yw_deploy/deploy/api/task_list/conf', {
+        //$.ajax('/deploy/api/task_list/conf', {
+        dataType: 'json'
+    }).success(function (data) {
+        $('#plugin3_demo7_1').select2({
+        data : data,
+        placeholder: "任务列表"
+    });
+    });
+
+    $('#plugin3_demo7_1').on("change", function () {
+        if($("#plugin3_demo7_1").select2("val") == 3){
+
+            if($("#changePassForm").length == 0){
+                $("#changePass .modal-body").html(passform);
+                $("#changePassForm")[0].reset();
+            }
+
+            var nodes = $("#plugin11_demo4").jstree(true).get_selected();
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].indexOf('/') > 0) {
+                    nodes.splice(i, 1)
+                }
+
+                if(jQuery.inArray('.', nodes[i]) == -1){
+                     nodes.splice(i, 1)
+                }
+            }
+            if(nodes.length == 0){
+//                swal({
+//                    title: "未选中修改密码的主机",
+//                    text: "请先选择IP",
+//                    type: "error"
+//                    },
+//                    function () {
+//                        $("#plugin3_demo7_1").select2("val", "");
+//                    });
+                var d = dialog({
+                    width: 260,
+                    title: "未选中修改密码的主机",
+                    content: "请先选择IP",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+                        $("#plugin3_demo7_1").select2("val", "");
+                    }
+                });
+                d.showModal();
+            }else{
+                $('#changePass #serverIP').val(nodes);
+                $('#changePass #serverIP').attr("placeholder", nodes);
+                if($("#submitPass").css("display") == "none"){
+                    $("#submitPass").prop("disabled",false);
+                    $("#submitPass").css("display","inline")
+                }
+                $('#changePass').modal('show');
+            }
+        }
+    });
+
+    $("#submitPass").click(function () {
+        if($("#oldPass").val() == ''){
+//                swal({
+//                    title: "请输入原密码!",
+//                    text: "",
+//                    type: "error"
+//                    },
+//                    function () {
+//                        return false;
+//                    });
+                var d = dialog({
+                    width: 260,
+                    title: "请输入原密码!",
+                    content: "请输入原密码!",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+//                        return false;
+                    }
+                });
+                d.showModal();
+                return false;
+        }else if($("#newPass").val() == '' || $("#confirmPass").val() == ''){
+//                swal({
+//                    title: "新密码和确认密码不能为空，请重新输入!",
+//                    text: "",
+//                    type: "error"
+//                    },
+//                    function () {
+//                        return false;
+//                    });
+                var d = dialog({
+                    width: 260,
+                    title: "密码不能为空!",
+                    content: "新密码和确认密码不能为空，请重新输入!",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+//                        return false;
+                    }
+                });
+                d.showModal();
+                return false;
+        }else if($("#newPass").val() != $("#confirmPass").val()){
+//                swal({
+//                    title: "两次密码输入不一致，请重新输入!",
+//                    text: "",
+//                    type: "error"
+//                    },
+//                    function () {
+//                        return false;
+//                    });
+                var d = dialog({
+                    width: 260,
+                    title: "两次密码输入不一致!",
+                    content: "两次密码输入不一致，请重新输入!",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+//                        return false;
+                    }
+                });
+                d.showModal();
+                return false;
+        }
+
+        $("#submitPass").prop("disabled",true);
+
+        postDic = {
+                "selected_hosts": JSON.stringify($("#plugin11_demo4").jstree(true).get_selected()),
+                "cmd": JSON.stringify({
+                    "first":{"id": "", "text":"root密码修改"},
+                    "second":{"id": "", "text":$("#oldPass").val()},
+                    "third":{"id": "", "text":$("#newPass").val()}
+                })
+            };
+
+        $.post('/s/yw_deploy/deploy/api/task/action/', postDic, function (callback) {
+            $("#changePass .modal-body").html("<span>正在创建任务编号...</span>");
+            if (callback != 'TaskCreatingError'){
+                $("#submitPass").css("display","none");
+                $("#changePass .modal-body").html("<span style='color:green;font:bold'>任务创建成功! 任务编号:</span>" + callback);
+                $(".task_result").html("");
+                GetTaskResult(callback,'refresh');
+            }else{
+                $("#changePass .modal-body").html("<span style='color:green;font:bold'>任务创建失败，请查看相关日志进行调试！</span>");
+            }
+        })
+    });
+
+    $("#plugin3_demo7_2").select2({
+        data: [],
+        placeholder: '选择业务'
+    });
+
+    $("#plugin3_demo7_3").select2({
+        data: [],
+        placeholder: '任务配置'
+    });
+
+    $("#plugin3_demo7_1").on("change", function(e) {
+        var data = $('#plugin3_demo7_1').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_2').val('');
+            $('#plugin3_demo7_2').select2({
+                data : data.child,
+                placeholder: "选择业务"
+            });
+        }
+    });
+
+    $("#plugin3_demo7_2").on("change", function(e) {
+        var data = $('#plugin3_demo7_2').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_3').val('');
+            $('#plugin3_demo7_3').select2({
+                data : data.child,
+                placeholder: "任务配置"
+            });
+        }
+    });
+
+    $("#task-exec-btn").click(function () {
+        var nodes = $("#plugin11_demo4").jstree(true).get_selected();
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].indexOf('/') > 0) {
+                nodes.splice(i, 1)
+            }
+
+            if(jQuery.inArray('.', nodes[i]) == -1){
+                 nodes.splice(i, 1)
+            }
+        }
+        if(nodes.length == 0){
+//            swal("未选中任何主机执行任务", "", "error");
+            var d = dialog({
+                width: 260,
+                title: '请选择ip',
+                content: "未选中任何主机执行任务",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false
+        }
+        if($('#plugin3_demo7_1').val() == '' || $('#plugin3_demo7_2').val() == ''){
+//            swal("任务不能为空", "", "error");
+            var d = dialog({
+                width: 260,
+                title: '任务不能为空',
+                content: "任务不能为空",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false
+        }else{
+            postDic = {
+                'selected_hosts': JSON.stringify(nodes),
+                'cmd': JSON.stringify({
+                    'first':{'id': $('#plugin3_demo7_1').select2("val"), 'text':$('#plugin3_demo7_1').select2("data").text},
+                    'second':{'id':$('#plugin3_demo7_2').select2("val"), 'text':$('#plugin3_demo7_2').select2("data").text},
+                    'third':{'id':$('#plugin3_demo7_3').select2("val"), 'text':$('#plugin3_demo7_3').select2("data").text}
+                })
+            };
+            if($("#submit_task_confirm").css("display") == "none"){
+                $("#submit_task_confirm").prop("disabled",false);
+                $("#submit_task_confirm").css("display","inline")
+            }
+            $("#taskRunConfirmModal").modal('show');
+        }
+    });
+
+    $("#submit_task_confirm").click('on', function () {
+        $(this).attr("disabled", true);
+        $("#modal_content").html("正在创建任务编号...");
+        var url = $(this).attr('url');
+        $.post(url, postDic, function (callback) {
+            if (callback != 'TaskCreatingError'){
+                $("#submit_task_confirm").css("display","none");
+                $("#modal_content").html("任务执行成功! 任务编号:" + callback);
+                $("#modal_content").attr("style","color:green;font:bold");
+                $(".task_result").html("");
+                GetTaskResult(callback,'refresh');
+            }else{
+                $("#modal_content").html("任务创建失败，请查看相关日志进行调试！");
+                $("#modal_content").attr("style","color:red;font:bold")
+            }
+        });
+    });
+
+    function local_clean() {
+        $("#plugin3_demo7_1").select2("val", "");
+        $("#plugin3_demo7_2").select2("val", "");
+        $("#plugin3_demo7_3").select2("val", "");
+        $('#plugin11_demo4').jstree('deselect_all');
+        $('#plugin11_demo4').jstree('close_all');
+    }
+
+    function TerminateTask(){
+        var current_task_id = $("#current_task_id span").text();
+        if (current_task_id != ''){
+            $.post("{% url 'task_abort' %}", {'task_id':current_task_id},function(callback){
+                if (callback.indexOf("has terminated") > -1){
+                    clearInterval(ResultRefresh);
+
+                    show_alert_info([callback]);
+                     $("#submit_task_confirm").prop("disabled",false);
+                }else{
+
+                    show_alert_warning([callback]);
+                }
+            });
+        }else{
+            show_alert(['当前无任务运行，停止个毛线？']);
+        }
+    }
+
+
+    function GetTaskResult(task_id,run_type){
+        if (run_type=='refresh'){
+            PrintTaskResult(task_id);
+            ResultRefresh = setInterval(function(){
+                PrintTaskResult(task_id);
+            },3000);
+        }else{
+            var one_time_run = null;
+        }
+    }
+
+    function ChangeBadgeSize(ele){
+        $(".task_summary_panel span").css("font-size","15px");
+        $(ele).css("font-size","20px");
+    }
+
+    function show_alert(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'danger',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">验证错误!</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-danger" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    function show_alert_info(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'info',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">Message</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-info" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    function show_alert_warning(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'warning',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">Warning</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-warning" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    $("#refresh_result").click('on', function () {
+        local_clean();
+    });
+
+    $(".cancel").click('on', function () {
+        local_clean();
+        $("#oldPass").val("");
+        $("#newPass").val("");
+        $("#confirmPass").val("");
+    });
+
+    function PrintTaskResult(task_id){
+        $.getJSON('/s/yw_deploy/deploy/api/task/res/', {'task_id':task_id},function(logdata) {
+        $("#current_task_id span").html(logdata['summary'].id);
+        $("#total_tasks span").html(logdata['summary'].host_num);
+        $("#finished_tasks span").html(logdata['summary'].finished_num);
+        $("#failed_tasks span").html(logdata['summary'].failed_num);
+        $("#unkown_tasks span").html(logdata['summary'].unknown_num);
+
+        $.each(logdata['detail'], function (key, log) {
+            var d = logdata['detail'][key];
+            if (d.result == 'success') {
+                var task_res = '<span class="task_res_status badge badge-success">' + d.result + '</span>';
+            } else if (d.result == 'failed') {
+                var task_res = '<span class="task_res_status badge badge-danger">' + d.result + '</span>';
+            } else {
+                var task_res = '<span class="task_res_status badge badge-warning">' + d.result + '</span>';
+            }
+
+            if ($(".task_result div[result='host_" + d.host_id + "'] pre").attr("style")=="display: none;"){
+                var res_detail = "<pre style='display: none;'>" + d.event_log + "</pre>";
+            }else{
+                var res_detail = "<pre style='display: block;'>" + d.event_log + "</pre>";
+
+            }
+            if ($(".task_result div[result='host_" + d.host_id + "'] h4").attr("style")=="display: none;"){
+                var h4_ele = "<b style='display: none;'>";
+            }else{
+                var h4_ele = "<b style='display: block;'>";
+
+            }
+
+            var host_info_ele = h4_ele + "<i onclick='ToggleSingleResult(this)'  class='fa fa-plus-square-o fa-plus-task-res'></i> " + d.ip_addr + "(" + d.ip_addr + ") user:" + d.username + " --- Result: " + task_res + "</b>" + res_detail;
+            if ($(".task_result div[result='host_" + d.host_id + "']").length > 0) {
+                $(".task_result div[result='host_" + d.host_id + "']").html(host_info_ele);
+            } else {
+                var res_div = "<div result='host_" + d.host_id + "' class='host_res_head'>" + host_info_ele + "</div>";
+                $(".task_result").append(res_div);
+            }
+        });
+        if (logdata['summary'].unknown_num == 0 ){
+            if (typeof ResultRefresh !='undefined' ){
+                clearInterval(ResultRefresh);
+                $("#submit_task_confirm").prop("disabled",false);
+            }
+
+            $("button[onclick='submit_task(this)']").attr("disabled",false);
+
+            }
+        });
+        }
+
+    function task_detail_toggle(action_type,ele){
+        if (action_type=='all'){
+            $(".task_result b").fadeIn();
+            $(".task_result b").next().fadeIn();
+
+        }else{
+            $(".task_result b").filter(function() { return $(this).css("display") == "block" }).next().fadeToggle();
+
+        }
+
+        if ($(ele).html().search("down") >0){
+            $(ele).html('<i class="fa fa-chevron-circle-up"></i> 收缩/展开');
+
+        }else{
+             $(ele).html('<i class="fa fa-chevron-circle-down"></i> 收缩/展开')
+
+        }
+    }
+
+    function ToggleSingleResult(ele){
+        $(ele).parent().next().fadeToggle();
+    }
+
+</script>
+
+{% endblock %}

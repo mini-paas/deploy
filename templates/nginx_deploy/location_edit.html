@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block content %}
+{% block self_head_css_js %}%}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+<link href="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/sumoselect.css" rel="stylesheet">
+<script src="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/jquery.sumoselect.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/messages_zh.js"></script>
+{% endblock %}
+{% autoescape off %}
+    <div class="king-main-container">
+        <div class="container-fluid">
+
+            <div class="panel panel-default pannel-overflow">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>修改location
+                </div>
+                <div class="panel-body panel-tab-body pl20 pr20">
+                    <div class="panel-content">
+                        <ul class="nav nav-tabs" id="myTab">
+                            <li class="active">
+                                <a href="#file" data-toggle="tab">基本信息</a>
+                            </li>
+                            <!--<li>
+                                <a href="#bind" data-toggle="tab">配置绑定</a>
+                            </li>-->
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade king-block-content active in" id="file">
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <form id="location_edit" method="post" class="form-horizontal pt20">
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">location名称：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" name="location_name" value="{{ location.location_name }}" placeholder="">
+                                                    <p class="help-block">~* ^/Atom.axd/Api/Client/MQProxy</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_set_header：</label>
+                                                <div class="col-sm-10">
+                                                    <!--<input type="password" class="form-control" id="inputPassword3" placeholder="">-->
+                                                    <textarea class="form-control" rows="3" name="proxy_set_header">{{ location.proxy_set_header }}</textarea>
+                                                    <p class="help-block">proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_pass：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" name="proxy_pass" value="{{ location.proxy_pass }}" placeholder="">
+                                                    <p class="help-block">http://dwn.reader.qq.com.shenzhen;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_connect_timeout：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" name="proxy_connect_timeout" value="{{ location.proxy_connect_timeout }}" placeholder="">
+                                                    <p class="help-block">60s;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_cache相关：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" rows="3" name="proxy_cache">{{ location.proxy_cache }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">fastcgi相关：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" rows="3" name="fastcgi">{{ location.fastcgi }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">location 其它配置项：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" rows="3" name="other_location">{{ location.other_location }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="input3" class="col-sm-2 control-label">server：</label>
+                                                <div class="col-sm-5">
+                                                    <div class="sumoselect_demo" id="sumoselect_demo2" style="width:100%;">
+                                                        <select id="servers" name="servers" size="6" class="form-control m-b" multiple>
+                                                            {% for server in server_all %}
+                                                                {% if server.server_name in location.id|location_server_name %}
+                                                                    <option value="{{ server.id }}" selected>{{ server.server_name }}</option>
+                                                                {% else %}
+                                                                    <option value="{{ server.id }}">{{ server.server_name }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <p class="help-block">server名称(支持多选)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="input3" class="col-sm-2 control-label">server_ssl：</label>
+                                                <div class="col-sm-5">
+                                                    <div class="sumoselect_demo" id="sumoselect_demo2" style="width:100%;">
+                                                        <select id="server_ssl_s" name="server_ssl_s" size="6" class="form-control m-b" multiple>
+                                                            {% for server_ssl in server_ssl_all %}
+                                                                {% if server_ssl.server_ssl_name in location.id|location_server_ssl_name %}
+                                                                    <option value="{{ server_ssl.id }}" selected>{{ server_ssl.server_ssl_name }}</option>
+                                                                {% else %}
+                                                                    <option value="{{ server_ssl.id }}">{{ server_ssl.server_ssl_name }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <p class="help-block">server_ssl名称(支持多选)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-10 col-sm-offset-2">
+                                                    <button type="submit" class="king-btn king-primary mr10">保存</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endautoescape %}
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+
+    $('#sumoselect_demo3 select').SumoSelect({
+        okCancelInMulti: true
+    });
+
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'location_list' %}']").parent().addClass('active');
+
+    $("#location_edit").validate({
+        rules: {
+          location_name: {
+            required: true
+          }
+        },
+        messages: {
+          location_name: {
+            required: "请输入location名称"
+          }
+        }
+    });
+</script>
+
+{% endblock %}

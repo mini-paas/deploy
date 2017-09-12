@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block content %}
+
+    <div class="king-main-container">
+        <div class="container-fluid">
+            <div class="panel panel-default pannel-overflow panel-tables">
+                <div class="panel-heading">
+                    nginx配置详细信息
+                </div>
+                    <br>
+                    <div class="panel-content">
+                        <div class="text-left" style="background-color: #f5f5f5">
+                            <table class="table table-out-bordered table-header-bg ">
+                                <tr>
+                                    <td class="text" style="width: 15%">nginx配置文件全称</td>
+                                    <td>{{ infor_info.full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><font size="4" color="red">nginx配置文件全称</font></td>
+                                    <td>{{ infor_info.full_name }}</td>
+                                </tr>
+                            </table>
+                            <!--<br>-->
+                            <!--<table class="table table-out-bordered table-header-bg ">-->
+                                <!--<tr>-->
+                                    <!--<td><font size="4" color="red">upstream名称</font></td>-->
+                                    <!--<td>{{ infor_info.id | detail_upstream_name }}</td>-->
+                                <!--</tr>-->
+                            <!--</table>-->
+                            <!--<br>-->
+
+<pre id="cfg" style="width: 800px; margin-left: 10px;padding-top:0px;background-color: white">
+<div style="font-size: 15px;min-height: 690px;" class="upstream_div">
+{% if servers %}<span style="color: red;font-size: 20px;" class="upstream_server">server</span> {
+    listen {{ servers.listen_post }};
+    server_name {{ servers.server_name }};
+    gzip {{ servers.gzip }};
+    access_log  {{ servers.access_log  }}
+    error_log  {{ servers.error_log }}
+    {% if servers.other_server  %}
+    <div class="other_server" style="margin-top: 0px; padding: 0px;">
+    {{ servers.other_server }}
+    </div>
+    {% endif %}
+    {% for location in locations %}
+    <span style="color: dodgerblue">location</span> {{location.location_name }} {
+        <div class="set_header" style="margin-top: 0px; padding: 0px;">
+        {{ location.proxy_set_header }}
+        {% if location.proxy_pass %}
+        proxy_pass         {{location.proxy_pass }}
+        {% endif %}
+        {% if location.proxy_connect_timeout %}
+        proxy_connect_timeout {{location.proxy_connect_timeout }}
+        {% endif %}
+        {% if location.proxy_cache %}
+        {{ location.proxy_cache }}
+        {% endif %}
+        {% if location.other_location %}
+        {{ location.other_location }}
+        {% endif %}
+        {% if location.fastcgi %}
+        {{ location.fastcgi }}
+        {% endif %}
+        </div>
+    }
+    {% endfor %}
+}
+{% endif %}
+{% if server_ssls %}
+<span style="color: red;font-size: 20px;" class="set_header">server</span> {
+    listen       {{ server_ssls.listen_post }};
+    server_name  {{ server_ssls.server_ssl_name }};
+
+    ssl                  {{ server_ssls.ssl }};
+    ssl_certificate      {{ server_ssls.ssl_certificate }}
+    ssl_certificate_key  {{ server_ssls.ssl_certificate_key }}
+    ssl_session_timeout  {{ server_ssls.ssl_session_timeout }}
+    ssl_protocols  {{ server_ssls.ssl_protocols }}
+    ssl_ciphers  {{ server_ssls.ssl_ciphers }}
+    ssl_prefer_server_ciphers   {{ server_ssls.ssl_prefer_server_ciphers }};
+
+    access_log  {{ server_ssls.access_log }};
+    error_log  {{ server_ssls.error_log }};
+
+    {% for location in locations_ssl %}
+    <span style="color: dodgerblue">location</span> {{location.location_name }} {
+        <div class="set_header" style="margin-top: 0px; padding: 0px;">
+        {{ location.proxy_set_header }}
+        {% if location.proxy_pass %}
+        proxy_pass         {{location.proxy_pass }}
+        {% endif %}
+        {% if location.proxy_connect_timeout %}
+        proxy_connect_timeout {{location.proxy_connect_timeout }}
+        {% endif %}
+        {% if location.other_location %}
+        {{ location.other_location }}
+        {% endif %}
+        </div>
+    }
+    {% endfor %}
+}
+{% endif %}
+</div>
+</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().addClass('active');
+
+    $(".set_header").each(function () {
+            var str = $.trim($(this).html().replace(/(\r\n|\n|\r)/gm,""));
+            var split_str = str.split(';');
+            for(var i=0;i<split_str.length-1;i++){
+                split_str[i] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +  $.trim(split_str[i]) + ';<br>';
+            }
+            a = '';
+            for(var i=0;i<split_str.length;i++){
+                a = a + split_str[i];
+            }
+            $(this).html(a);
+
+    });
+
+    $(".other_server").each(function () {
+            var str = $.trim($(this).html().replace(/(\r\n|\n|\r)/gm,""));
+            var split_str = str.split(';');
+            for(var i=0;i<split_str.length-1;i++){
+                split_str[i] = '&nbsp;&nbsp;&nbsp;&nbsp;' +  $.trim(split_str[i]) + ';<br>';
+            }
+            a = '';
+            for(var i=0;i<split_str.length;i++){
+                a = a + split_str[i];
+            }
+            $(this).html(a);
+    });
+
+    var data  = JSON.parse("{{ upstreams|safe }}".replace(/'/g, '"').replace(/: u/g,':').replace(/:u/g,':'));
+    var upstreams = [];
+    var newUpstreams = {};
+    for(var i=0;i<data.length;i++){
+        if($.inArray(data[i]['upstream_name'],upstreams) == -1){
+            upstreams.push(data[i]['upstream_name']);
+            newUpstreams[data[i]['upstream_name']] = [];
+        }
+        for(var j=0;j<upstreams.length;j++){
+            if(data[i]['upstream_name'] == upstreams[j]){
+                newUpstreams[upstreams[j]].push({"ip_port": data[i]["ip_port"], "weight": data[i]["weight"], "max_fails": data[i]["max_fails"], "fail_timeout": data[i]["fail_timeout"]});
+            }
+        }
+    }
+
+    streams = "";
+    for(var i=0;i<upstreams.length;i++){
+        streams += '<span style="color: red;font-size: 20px;">upstream</span> ' + upstreams[i] + " {\r\n";
+        stream_inerLine = "";
+        for(var j=0;j<newUpstreams[upstreams[i]].length;j++){
+            if(j == newUpstreams[upstreams[i]].length-1){
+                stream_inerLine += "    server " + newUpstreams[upstreams[i]][j]['ip_port'] + " weight=" + newUpstreams[upstreams[i]][j]['weight'] + " max_fails=" + newUpstreams[upstreams[i]][j]['max_fails'] + " fail_timeout=" + newUpstreams[upstreams[i]][j]['fail_timeout'] + ";";
+            }else{
+                stream_inerLine += "    server " + newUpstreams[upstreams[i]][j]['ip_port'] + " weight=" + newUpstreams[upstreams[i]][j]['weight'] + " max_fails=" + newUpstreams[upstreams[i]][j]['max_fails'] + " fail_timeout=" + newUpstreams[upstreams[i]][j]['fail_timeout'] + ";\r\n";
+            }
+        }
+        data = streams + stream_inerLine + "\r\n}\r\n\r\n";
+        streams = "";
+        $(".upstream_div").prepend(data);
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+<!-- 包括所有bootstrap的js插件或者可以根据需要使用的js插件调用　-->
+<script src="http://t.open.oa.com/static_api/v3/assets/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+<script src="http://t.open.oa.com/static_api/v3/bk/js/bk.js"></script>
+<script src="{{STATIC_URL}}js/index.js"></script>
+<!--<script src="{{STATIC_URL}}js/bootstrap.min.js"></script>-->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".navi a[href='{{ request.path }}']").parent().addClass("active").parent().css('display','block');
+    });
+
+    function getCookie(name){
+        var strCookie=document.cookie;
+        var arrCookie=strCookie.split("; ");
+        for(var i=0;i<arrCookie.length;i++){
+            var arr=arrCookie[i].split("=");
+            if(arr[0]==name)return arr[1];
+        }
+        return "";
+    }
+
+    $("#user").html(getCookie('bk_uid'));
+
+    $('select option').on('mousedown', function (e) {
+        this.selected = !this.selected;
+        e.preventDefault();
+    });
+
+    if(window.location.pathname == "/s/yw_deploy/deploy/tasklog/detail/"){
+        $("ul li.opertion").addClass("open");
+        $("ul li.opertion ul").css("display", "block");
+        $("ul li.opertion ul li").addClass("active");
+    }
+
+    if(window.location.pathname.indexOf("/s/yw_deploy/deploy/user_audit") != -1){
+        $("ul li.opertion").addClass("open");
+        $("ul li.opertion ul").css("display", "block");
+        $("ul li.opertion ul li").addClass("active");
+    }
+</script>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<%block name="head">
+	<title>开发样例</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <!-- 移动端上建议以下APP不需要用到的css和js去除，防止移动端查看时加载过慢 -->
+	<!-- Bootstrap css -->
+	<link href="${WEIXIN_REMOTE_STATIC_URL}assets/bootstrap-3.3.4/css/bootstrap.min.css" rel="stylesheet">
+ 	<!-- font-awesome -->
+    <link href="${WEIXIN_REMOTE_STATIC_URL}assets/fontawesome/css/font-awesome.css" rel="stylesheet">
+    <!-- 页面样式初始化CSS引入 -->
+    <link href="${WEIXIN_REMOTE_STATIC_URL}bk/css/normalize.css" rel="stylesheet">
+    <!--蓝鲸提供的移动端公用样式库 -->
+    <link href="${WEIXIN_REMOTE_STATIC_URL}bk/css/bk_mobile.css" rel="stylesheet">
+    <!-- 本页面样例自定义css -->
+    <link href="${WEIXIN_STATIC_URL}css/index.css" rel="stylesheet">
+	</%block>
+</head>
+<body>
+	<%
+		biz_machine = task_data = share_template = ''
+		relative_path = APP_PATH
+		if relative_path == WEIXIN_SITE_URL:
+			biz_machine = 'king-selected'
+		elif relative_path.startswith(WEIXIN_SITE_URL + 'task_data_page/'):
+			task_data = 'king-selected'
+		elif relative_path.startswith(WEIXIN_SITE_URL + 'share_template/'):
+			share_template = 'king-selected'
+	%>
+	<nav class="king-content-wrap" style="top: 0;">
+	    <nav class="king-tab">
+	        <ul>
+	            <li class="king-tar ${biz_machine}" href="${WEIXIN_SITE_URL}">业务数据</li>
+	            <li class="king-tar ${task_data}" href="${WEIXIN_SITE_URL}task_data_page/">流程任务数据</li>
+	            <li class="king-tar ${share_template}" href="${WEIXIN_SITE_URL}share_template/">微信分享样例</li>
+	        </ul>
+	    </nav>
+	</nav>
+   	<%block name="content">
+   	</%block>
+</body>
+<%block name='base_js'>
+<!-- 引入jQuery2.0 -->
+<script src="${WEIXIN_REMOTE_STATIC_URL}assets/js/jquery-2.0.0.min.js"></script>
+<!-- bootstrap的js-->
+<script src="${WEIXIN_REMOTE_STATIC_URL}assets/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+<!-- 引入Echart -->
+<script src="${WEIXIN_REMOTE_STATIC_URL}assets/echart-3.0/echarts.min.js"></script>
+<!-- 引入蓝鲸提供的公用js -->
+<script src="${WEIXIN_REMOTE_STATIC_URL}bk/js/bk_mobile.js"></script>
+<!-- 配置文件，请勿删除 -->
+<script src="${WEIXIN_STATIC_URL}js/settings.js"></script>
+<script src="https://js.aq.qq.com/js/aq_common.js" async></script>
+</%block>
+<script>
+$(function () {
+	$('.king-tab ul li').click(function(){
+		window.location.href = $(this).attr('href');
+	});
+});
+</script>
+<!--
+    这里放置子页面中，不在block的内容，一般为js，注意子模版中的js如果使用到以上js库，必须放置在block外
+    只对直接子页面起效，若子页面被继承，且继承子页面的页面有不在block中的内容，则子页面也需添加 $ {next.body()}
+    $ {next.body()}的位置决定了子页面不在block的内容被渲染的位置
+    也可使用$ {self.body()}，但$ {self.body()}只渲染最终页面不在block中的内容，中间继承页面不在block的内容不做渲染
+ -->
+${next.body()}
+</html>

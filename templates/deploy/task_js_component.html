@@ -1,0 +1,280 @@
+<link rel="stylesheet" href="http://t.open.oa.com/static_api/v3/assets/jstree-3.1.1/dist/themes/default/style.min.css" />
+<script src="http://t.open.oa.com/static_api/v3/assets/jstree-3.1.1/dist/jstree.min.js"></script>
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.css" rel="stylesheet">
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2-2.0.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.js"></script>
+
+
+<script type="text/javascript">
+
+    $('#plugin11_demo4').jstree({
+        'core': {
+            'data': {
+                "url": "http://localhost:18000/api/cmdb_api/",
+                //"url": "http://t.open.oa.com/s/yw_tocnew/api/cmdb_api/",
+                "dataType": "json",
+                "data": function (node) {
+                    return {"id": node.id};
+                }
+            },
+            "dblclick_toggle": true,
+            "multiple": true
+        },
+        "checkbox": {
+            "keep_selected_style": false,//是否默认选中
+            "undetermined": false,
+            "three_state": false   //jstree 父节点与子节点操作互不影响(不级联)，否则点父目录就卡死了
+        },
+        "plugins": ["checkbox"]
+    }).on('ready.jstree', function (e,data) {
+        $("#plugin11_demo4 > ul > li > a > i.jstree-checkbox").hide();
+        }).on('open_node.jstree', function (e,data) {
+            $("#plugin11_demo4 > ul > li > a > i.jstree-checkbox").hide();
+            $("#plugin11_demo4 > ul > li > ul > li > a > i.jstree-checkbox").hide();
+            $("#plugin11_demo4 > ul > li > ul > li > ul > li > a > i.jstree-checkbox").hide();
+        });
+
+    //$.ajax('http://t.open.oa.com/s/yw_deploy/deploy/api/task_list/conf', {
+    $.ajax('/deploy/api/task_list/conf', {
+        dataType: 'json'
+    }).success(function (data) {
+        $('#plugin3_demo7_1').select2({
+        data : data,
+        placeholder: "任务列表"
+    });
+    });
+
+    $("#plugin3_demo7_2").select2({
+        data: [],
+        placeholder: '选择业务'
+    });
+
+    $("#plugin3_demo7_3").select2({
+        data: [],
+        placeholder: '任务配置'
+    });
+
+    $("#plugin3_demo7_1").on("change", function(e) {
+        var data = $('#plugin3_demo7_1').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_2').val('');
+            $('#plugin3_demo7_2').select2({
+                data : data.child,
+                placeholder: "选择业务"
+            });
+        }
+
+    });
+
+    $("#plugin3_demo7_2").on("change", function(e) {
+        var data = $('#plugin3_demo7_2').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_3').val('');
+            $('#plugin3_demo7_3').select2({
+                data : data.child,
+                placeholder: "任务配置"
+            });
+        }
+    });
+
+    $("#task-exec-btn").click(function () {
+        var nodes = $("#plugin11_demo4").jstree(true).get_selected();
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].indexOf('/') > 0) {
+                nodes.splice(i, 1)
+            }
+
+            if(jQuery.inArray('.', nodes[i]) == -1){
+                 nodes.splice(i, 1)
+            }
+        }
+        if(nodes.length == 0){
+            alert('未选中任何主机执行任务');
+            return false
+        }
+        if($('#plugin3_demo7_1').val() == '' || $('#plugin3_demo7_2').val() == ''){
+            alert('任务不能为空');
+            return false
+        }else{
+            postDic = {
+                'selected_hosts': JSON.stringify(nodes),
+                'cmd': JSON.stringify({
+                    'first':{'id': $('#plugin3_demo7_1').select2("val"), 'text':$('#plugin3_demo7_1').select2("data").text},
+                    'second':{'id':$('#plugin3_demo7_2').select2("val"), 'text':$('#plugin3_demo7_2').select2("data").text},
+                    'third':{'id':$('#plugin3_demo7_3').select2("val"), 'text':$('#plugin3_demo7_3').select2("data").text}
+                })
+            };
+            $("#taskRunConfirmModal").modal('show');
+        }
+    });
+
+    $("#submit_task_confirm").click('on', function () {
+        var url = $(this).attr('url');
+        $.post(url, postDic, function (callback) {
+            if (callback != 'TaskCreatingError'){
+                $("#modal_content").html("任务创建成功! 任务编号:" + callback);
+                $("#modal_content").attr("style","color:green;font:bold");
+                $(".task_result").html("");
+                $("#file-download-to-local").attr("task_id",callback); // only works when task_type = file_get
+                GetTaskResult(callback,'refresh');
+                window.location.reload();
+            }else{
+                $("#modal_content").html("任务创建失败，请查看相关日志进行调试！");
+                $("#modal_content").attr("style","color:red;font:bold")
+            }
+        });
+    });
+
+    function TerminateTask(){
+        var current_task_id = $("#current_task_id span").text();
+        if (current_task_id != ''){
+            $.post("{% url 'task_abort' %}", {'task_id':current_task_id},function(callback){
+
+                if (callback.indexOf("has terminated") > -1){ //task got terminated..
+                    clearInterval(ResultRefresh);
+
+                    show_alert_info([callback]);
+                     $("#submit_task_confirm").prop("disabled",false);
+                }else{
+
+                    show_alert_warning([callback]);
+                }
+            });//end post
+        }else{
+            show_alert(['当前无任务运行，停止个毛线？']);
+        }
+    }
+
+
+    function GetTaskResult(task_id,run_type){
+        if (run_type=='refresh'){
+            PrintTaskResult(task_id);
+            ResultRefresh = setInterval(function(){
+                PrintTaskResult(task_id);
+            },3000);
+        }else{
+            var one_time_run = null;
+        }
+    }
+
+    function ChangeBadgeSize(ele){
+        $(".task_summary_panel span").css("font-size","15px")
+        $(ele).css("font-size","20px");
+    }
+
+        function show_alert(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'danger',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">验证错误!</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-danger" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    function show_alert_info(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'info',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">Message</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-info" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    function show_alert_warning(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'warning',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">Warning</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-warning" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    $("#refresh_result").click('on', function () {
+        window.location.reload();
+    });
+
+
+    function PrintTaskResult(task_id){
+        $.getJSON('/task/res/', {'task_id':task_id},function(logdata) {
+            $("#current_task_id span").html(logdata['summary'].id);
+            $("#total_tasks span").html(logdata['summary'].host_num);
+            $("#finished_tasks span").html(logdata['summary'].finished_num);
+            $("#failed_tasks span").html(logdata['summary'].failed_num);
+            $("#unkown_tasks span").html(logdata['summary'].unknown_num);
+
+            $.each(logdata['detail'], function (key, log) {
+                var d = logdata['detail'][key];
+                if (d.result == 'success') {
+                    var task_res = '<span class="task_res_status badge badge-success">' + d.result + '</span>';
+                } else if (d.result == 'failed') {
+                    var task_res = '<span class="task_res_status badge badge-danger">' + d.result + '</span>';
+                } else {
+                    var task_res = '<span class="task_res_status badge badge-warning">' + d.result + '</span>';
+                }
+
+                if ($(".task_result div[result='host_" + d.host_id + "'] pre").attr("style")=="display: none;"){
+                    var res_detail = "<pre style='display: none;'>" + d.event_log + "</pre>";
+                }else{
+                    var res_detail = "<pre style='display: block;'>" + d.event_log + "</pre>";
+
+                }
+                if ($(".task_result div[result='host_" + d.host_id + "'] h4").attr("style")=="display: none;"){
+                     var h4_ele = "<b style='display: none;'>";
+                }else{
+                     var h4_ele = "<b style='display: block;'>";
+
+                }
+
+                var host_info_ele = h4_ele + "<i onclick='ToggleSingleResult(this)'  class='fa fa-plus-square-o fa-plus-task-res'></i> " + d.hostname + "(" + d.ip_addr + ") user:" +
+                        d.username + " --- System: " + d.system + " --- Result: " + task_res +
+                        "</b>" + res_detail;
+
+                if ($(".task_result div[result='host_" + d.host_id + "']").length > 0) {
+                    $(".task_result div[result='host_" + d.host_id + "']").html(host_info_ele);
+                } else {
+                    var res_div = "<div result='host_" + d.host_id + "' class='host_res_head'>" + host_info_ele + "</div>";
+                    $(".task_result").append(res_div);
+                }
+            });//end each
+            if (logdata['summary'].unknown_num == 0 ){
+                if (typeof ResultRefresh !='undefined' ){
+                    clearInterval(ResultRefresh);
+                    $("#submit_task_confirm").prop("disabled",false);
+                }
+
+                $("button[onclick='submit_task(this)']").attr("disabled",false);
+
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block self_head_css_js %}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+<link href="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/sumoselect.css" rel="stylesheet">
+<script src="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/jquery.sumoselect.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/messages_zh.js"></script>
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.js"></script>
+{% endblock %}
+{% block content %}
+{% autoescape off %}
+    <div class="king-main-container">
+        <div class="container-fluid">
+
+            <div class="panel panel-default pannel-overflow">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>添加server_ssl
+                </div>
+                <div class="panel-body panel-tab-body pl20 pr20">
+                    <div class="panel-content">
+                        <ul class="nav nav-tabs" id="myTab">
+                            <li class="active">
+                                <a href="#file" data-toggle="tab">基本信息</a>
+                            </li>
+                            <!--<li>
+                                <a href="#bind" data-toggle="tab">配置绑定</a>
+                            </li>-->
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade king-block-content active in" id="file">
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <form id="ssl_add" method="post" class="form-horizontal pt20">
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">listen：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="listen" class="form-control" name="listen">
+                                                    <p class="help-block">例如: 443</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">server_name：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="server_ssl_name" class="form-control" name="server_ssl_name">
+                                                    <p class="help-block">例如: newadr.reader.qq.com</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">access_log：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="access_log" class="form-control" name="access_log">
+                                                    <p class="help-block">访问日志路径,例如:/data/nginxlog/newadr.reader.qq.com.access.log  main;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">error_log：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="error_log" class="form-control" name="error_log">
+                                                    <p class="help-block">错误日志路径,例如: /data/nginxlog/newadr.reader.qq.com.error.log;</p>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label class="control-label col-sm-2">SSL：</label>
+                                                <div class="col-sm-7">
+                                                    <div class="radio">
+                                                        <label class="mr10" id="radios1">
+                                                            <input type="radio" name="optionsRadio" id="optionsRadios1" value="on" checked="">on
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="optionsRadio" id="optionsRadios2" value="off">off
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">ssl_certificate：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="ssl_certificate" class="form-control" name="ssl_certificate">
+                                                    <p class="help-block">证书文件    /usr/local/nginx/conf/certificate/reader.qq.com.server.pem;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">ssl_certificate_key：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="ssl_certificate_key" class="form-control" name="ssl_certificate_key">
+                                                    <p class="help-block">私钥文件    /usr/local/nginx/conf/certificate/reader.qq.com.server.key;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">ssl_session_timeout：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="ssl_session_timeout" class="form-control" name="ssl_session_timeout">
+                                                    <p class="help-block">加密参数最长期限  5m;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">ssl_protocols：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="ssl_protocols" class="form-control" name="ssl_protocols">
+                                                    <p class="help-block">指定协议版本   TLSv1 TLSv1.1 TLSv1.2;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">ssl_ciphers：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="ssl_ciphers" class="form-control" name="ssl_ciphers">
+                                                    <p class="help-block">加密方式    HIGH:!RC4:!MD5:!aNULL:!eNULL:!NULL:!DH:!EDH:!EXP:+MEDIUM;</p>
+                                                </div>
+                                            </div>
+                                            <!--<div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">ssl_prefer_server_ciphers：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="password" class="form-control" id="inputPassword3" placeholder="">
+                                                    <p class="help-block">协议优先  on;</p>
+                                                </div>
+                                            </div>-->
+                                            <div class="form-group">
+                                                <label class="control-label col-sm-2">ssl_prefer_server_ciphers：</label>
+                                                <div class="col-sm-7">
+                                                    <div class="radio">
+                                                        <label class="mr10" id="radios2">
+                                                            <input type="radio" name="options" id="optionsRadios1" value="on" checked="">on
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="options" id="optionsRadios2" value="off">off
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">ssl其它配置项：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" rows="3" name="ssl_other"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="plugin3_demo" id="plugin3_demo7" style="display:inline-block;padding-bottom: 20px;margin-left: 17%;">
+                                                <input type="hidden" class="bigdrop" id="plugin3_demo7_1" style="width:300px;">
+                                                <input type="hidden" class="bigdrop" id="plugin3_demo7_2" style="width:300px;">
+                                            </div>
+                                            <!--<div class="form-group">-->
+                                                <!--<label class="col-sm-2 control-label">配置：</label>-->
+                                                <!--<div class="col-sm-5">-->
+                                                    <!--<div class="sumoselect_demo" id="sumoselect_demo2" style="width:100%;">-->
+                                                        <!--<select id="servers" name="servers" size="6" class="form-control m-b" multiple>-->
+                                                            <!--{% for infor in infor_all %}-->
+                                                                <!--<option value="{{ infor.id }}">{{ infor.full_name }}</option>-->
+                                                            <!--{% endfor %}-->
+                                                        <!--</select>-->
+                                                        <!--<p class="help-block">配置名称(支持多选)</p>-->
+                                                    <!--</div>-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+
+                                            <div class="form-group">
+                                                <div class="col-sm-10 col-sm-offset-2">
+                                                    <button type="submit" class="king-btn king-primary mr10">保存</button>
+                                                    <button type="reset" value="Reset">重置</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endautoescape %}
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+    $('#sumoselect_demo3 select').SumoSelect({
+        okCancelInMulti: true
+    });
+
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'server_ssl_list' %}']").parent().addClass('active');
+
+    $("#ssl_add").validate({
+        rules: {
+          listen: {
+            required: true,
+            digits: true
+          },
+          server_name: {
+            required: true
+          },
+          access_log: {
+            required: true
+          },
+          error_log: {
+            required: true
+          },
+          ssl_certificate: {
+            required: true
+          },
+          ssl_certificate_key: {
+            required: true
+          },
+          ssl_session_timeout: {
+            required: true
+          },
+          ssl_protocols: {
+            required: true
+          },
+          ssl_ciphers: {
+            required: true
+          }
+        },
+        messages: {
+          listen: {
+            required: "请输入监听端口号"
+          },
+          server_name: {
+            required: "请填写server_name的名称"
+          },
+          access_log: {
+            required: "请填写access_log日志路径"
+          },
+          error_log: {
+            required: "请填写error_log日志路径"
+          },
+          ssl_certificate: {
+            required: "请填写ssl_certificate的路径"
+          },
+          ssl_certificate_key: {
+            required: "请填写ssl_certificate_key的路径"
+          },
+          ssl_session_timeout: {
+            required: "请填写ssl_session_timeout"
+          },
+          ssl_protocols: {
+            required: "请填写ssl_protocols"
+          },
+          ssl_ciphers: {
+            required: "请填写ssl_ciphers"
+          }
+        },
+        submitHandler:function (form) {
+            if($('#plugin3_demo7_1').val() == '' || $('#plugin3_demo7_2').val() == ''){
+//                swal("配置不能为空", "", "error");
+                var d = dialog({
+                    width: 260,
+                    title: '配置不能为空',
+                    content: "配置不能为空",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+                    }
+                });
+                d.showModal();
+                return false
+            }
+            data = {"server_ssl":JSON.stringify({"listen": $("#listen").val(), "server_name": $("#server_ssl_name").val(), "access_log": $("#access_log").val(),"error_log": $("#error_log").val(), "ssl": $("#radios1 input[name='optionsRadio']:checked").val(),"ssl_certificate": $("#ssl_certificate").val(),"ssl_certificate_key": $("#ssl_certificate_key").val(),"ssl_session_timeout": $("#ssl_session_timeout").val(),"ssl_protocols": $("#ssl_protocols").val(),"ssl_ciphers": $("#ssl_ciphers").val(),"ssl_prefer_server_ciphers": $("#radios2 input[name='options']:checked").val(),"other_ssl": $("#other_ssl").val(),"groups":$('#plugin3_demo7_1').select2("data").text, "infors": $('#plugin3_demo7_2').select2("data").text})}
+            $.post('/s/yw_deploy/nginx/server/ssl/add/', data, function () {
+                window.location.href = '/s/yw_deploy/nginx/server/ssl/list/'
+            })
+        }
+    });
+
+    $.ajax({
+        type: 'get',
+        url: '/s/yw_deploy/deploy/api/conf_list/',
+        async:false,
+        success: function (data) {
+            levelList = JSON.parse(data);
+        }
+    });
+
+    $('#plugin3_demo7 #plugin3_demo7_1').select2({
+        data : levelList,
+        placeholder: "选择配置组"
+    });
+    $('#plugin3_demo7_2').select2({
+        data : [],
+        placeholder: "选择配置"
+    });
+    $("#plugin3_demo7_1").on("change", function(e) {
+        var data = $('#plugin3_demo7_1').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_2').val('');
+            $('#plugin3_demo7_2').select2({
+                data : data.child,
+                placeholder: "选择配置"
+            });
+        }
+    });
+</script>
+
+{% endblock %}

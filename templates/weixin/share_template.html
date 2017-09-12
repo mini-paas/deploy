@@ -1,0 +1,89 @@
+<%inherit file="base.html" />
+<%block name="head">
+	<title>开发样例-微信分享样例</title>
+	${parent.head()}
+</%block>
+<%block name="content">
+% if is_weixin_terminal:
+	<div class="tc mt30 list disb share_result">
+		<p class="f14 mt10" id="share_result"></p>
+	</div>
+	<div class="share_box" id="share_box"></div>
+	<div class="share_btn" id="share_btn">分享朋友圈或朋友</div>
+% else:
+	<div class="tc mt30 list disb">
+        <div class="tc none_msg bc">
+            <i class="fa fa-meh-o f80 text-white"></i>
+        </div>
+        <p class="text-muted f14 mt10">本地开发环境无法查看，请部署后查看！</p>
+	</div>
+% endif
+</%block>
+% if is_weixin_terminal:
+	<script src='http://res.wx.qq.com/open/js/jweixin-1.1.0.js'></script>
+	<script type="text/javascript">
+	wx.config({
+	    debug: false,
+	    appId: "${js_sign['appId']}",
+	    timestamp: "${js_sign['timestamp']}",
+	    nonceStr: "${js_sign['nonceStr']}",
+	    signature: "${js_sign['signature']}",
+	    jsApiList: [
+	      'onMenuShareTimeline', 'onMenuShareAppMessage'
+	    ]
+	});
+	wx.ready(function(){
+		var share_url = window.location.href;
+		var imgUrl = window.location.origin + '${WEIXIN_STATIC_URL}img/share_img.png'
+	    wx.onMenuShareTimeline({
+	        title: '分享朋友圈标题', // 分享标题
+	        link: share_url, // 分享链接
+	        imgUrl: imgUrl, // 分享图标
+	        success: function () {
+	            // 用户确认分享后执行的回调函数
+	            $('#share_box').hide();
+	            $("#share_result").text('分享朋友圈成功！');
+	            $("#share_result").css({'color': '#3c763d'})
+	        },
+	        cancel: function () {
+	            // 用户取消分享后执行的回调函数
+	            $('#share_box').hide();
+	            $("#share_result").text('取消分享朋友圈！');
+	            $("#share_result").css({'color': '#a94442'})
+	        }
+	    });
+	    wx.onMenuShareAppMessage({
+	        title: '分享朋友标题', // 分享标题
+	        desc: '分享朋友描述内容', // 分享描述
+	        link: share_url, // 分享链接
+	        imgUrl: imgUrl, // 分享图标
+	        type: '', // 分享类型,music、video或link，不填默认为link
+	        dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+	        success: function () {
+	            // 用户确认分享后执行的回调函数
+	            $('#share_box').hide();
+	            $("#share_result").text('分享朋友成功！');
+	            $("#share_result").css({'color': '#3c763d'})
+	        },
+	        cancel: function () {
+	            // 用户取消分享后执行的回调函数
+	            $('#share_box').hide();
+	           	$("#share_result").text('取消分享朋友！');
+	           	$("#share_result").css({'color': '#a94442'})
+	        }
+	    });
+	})
+	</script>
+	<script type="text/javascript">
+	$(function(){
+		$('#share_btn').on('click', function(){
+		  $('#share_box').show();
+		  return false;
+		});
+		$('#share_box').on('click', function(){
+		  $('#share_box').hide();
+		  return false;
+		});
+	})
+	</script>
+% endif

@@ -1,0 +1,50 @@
+[
+	{
+		"pk":1,
+		"model": "auth.user", 
+		"fields": {
+			"username": "p_nnanli",                     
+			"last_name": "",
+			"password": "", 
+			"is_staff": 1,
+			"is_active": 1,                     
+			"is_superuser": 1
+		}
+	},
+	{
+		"pk":2,
+		"model": "auth.user", 
+		"fields": {
+			"username": "coffeedang",                     
+			"last_name": "",
+			"password": "", 
+			"is_staff": 1,
+			"is_active": 1,                     
+			"is_superuser": 1
+		}
+	},
+	{
+		"pk":3,
+		"model": "auth.user", 
+		"fields": {
+			"username": "echoqin",                     
+			"last_name": "",
+			"password": "", 
+			"is_staff": 1,
+			"is_active": 1,                     
+			"is_superuser": 1
+		}
+	},
+	{
+		"pk":4,
+		"model": "auth.user", 
+		"fields": {
+			"username": "huifu",                                 
+			"last_name": "",
+			"password": "", 
+			"is_staff": 1,
+			"is_active": 1,                                 
+			"is_superuser": 1
+		}
+	}
+]

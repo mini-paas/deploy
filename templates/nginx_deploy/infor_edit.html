@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% block self_head_css_js %}%}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+<link href="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/sumoselect.css" rel="stylesheet">
+<script src="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/jquery.sumoselect.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/messages_zh.js"></script>
+{% endblock %}
+
+    <div class="king-main-container">
+        <div class="container-fluid">
+
+            <div class="panel panel-default pannel-overflow">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>修改配置
+                </div>
+                <div class="panel-body panel-tab-body pl20 pr20">
+                    <div class="panel-content">
+                        <ul class="nav nav-tabs" id="myTab">
+                            <li class="active">
+                                <a href="#file" data-toggle="tab">基本信息</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade king-block-content active in" id="file">
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <form id="infor_edit" method="post" class="form-horizontal pt20">
+                                            <div class="form-group">
+                                                <label for="domain_name" class="col-sm-2 control-label">配置域名：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="domain_name" name="domain_name" class="form-control" value="{{ infor.name }}">
+                                                    <p class="help-block">配置域名</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="infor_name" class="col-sm-2 control-label">配置文件名称：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="infor_name" class="form-control" name="infor_name" value="{{ infor.full_name }}">
+                                                    <p class="help-block">例如: bookcs.paygate.reader.qq.com.conf</p>
+                                                </div>
+                                            </div>
+                                           <div class="form-group">
+                                                <label for="input3" class="col-sm-2 control-label">配置组：</label>
+                                                <div class="col-sm-10">
+                                                    <select id='infors' name="infors" class="form-control m-b input-sm" onchange="change_info()">
+                                                        <option value="">配置组名称</option>
+                                                        {% for group in group_all %}
+                                                            {% if group.groupname in infor.group.groupname %}
+                                                                <option value="{{ group.id }}" selected>{{ group.groupname }}</option>
+                                                            {% else %}
+                                                                <option value="{{ group.id }}">{{ group.groupname }}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label for="comment" class="col-sm-2 control-label">描述：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" id="comment" rows="4" name='comment' style="font-size: 12px;">{{infor.comment}}</textarea>
+                                                    <p class="help-block">配置的描述信息</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-10 col-sm-offset-2">
+                                                    <button type="submit" class="king-btn king-primary mr10">保存</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+
+    $('#sumoselect_demo3 select').SumoSelect({
+        okCancelInMulti: true
+    });
+
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().addClass('active')
+
+
+    $("#infor_edit").validate({
+        rules: {
+          domain_name: {
+            required: true,
+            minlength: 2
+          },
+          infor_name: {
+            required: true,
+          },
+          infors: {
+            required: true,
+          },
+          comment: {
+            required: true,
+            minlength: 5
+          }
+        },
+        messages: {
+          domain_name: {
+            required: "请配置域名",
+            minlength: "配置组名称至少由两个字母组成"
+          },
+          infor_name: {
+            required: "请填写配置文件名称",
+          },
+          infors: {
+            required: "请选择配置组",
+          },
+          comment: {
+            required: "请输入配置组的描述信息",
+            minlength: "配置组的描述信息不能小于 5 个字母"
+          }
+        }
+    });
+</script>
+
+{% endblock %}

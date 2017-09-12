@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>阅文SA平台</title>
+    {% include 'header.html' %}
+    {% block self_head_css_js %} {% endblock %}
+
+</head>
+
+<body>
+<div class="wrap">
+    {% include 'nav.html' %}
+
+{% block content %} {% endblock %}
+
+</div>
+
+</body>
+    {% include 'foot.html' %}
+    {% block self_footer_js %}
+
+    {% endblock %}
+</html>

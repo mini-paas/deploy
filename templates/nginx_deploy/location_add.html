@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% block content %}
+{% block self_head_css_js %}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+<link href="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/sumoselect.css" rel="stylesheet">
+<script src="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/jquery.sumoselect.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/messages_zh.js"></script>
+{% endblock %}
+{% autoescape off %}
+    <div class="king-main-container">
+        <div class="container-fluid">
+
+            <div class="panel panel-default pannel-overflow">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>添加location
+                </div>
+                <div class="panel-body panel-tab-body pl20 pr20">
+                    <div class="panel-content">
+                        <ul class="nav nav-tabs" id="myTab">
+                            <li class="active">
+                                <a href="#file" data-toggle="tab">基本信息</a>
+                            </li>
+                            <!--<li>
+                                <a href="#bind" data-toggle="tab">配置绑定</a>
+                            </li>-->
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade king-block-content active in" id="file">
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <form id="location_add" method="post" class="form-horizontal pt20">
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">location名称：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="location_name" class="form-control" name="location_name">
+                                                    <p class="help-block">/</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_set_header：</label>
+                                                <div class="col-sm-10">
+                                                    <!--<input type="password" class="form-control" id="inputPassword3" placeholder="">-->
+                                                    <textarea class="form-control" id="proxy_set_header" rows="3" name="proxy_set_header"></textarea>
+                                                    <p class="help-block">proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_pass：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="proxy_pass" class="form-control" name="proxy_pass">
+                                                    <p class="help-block">http://dwn.reader.qq.com.shenzhen;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_connect_timeout：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="proxy_connect_timeout" class="form-control" name="proxy_connect_timeout">
+                                                    <p class="help-block">60s;</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">proxy_cache相关：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea id="proxy_cache" class="form-control" rows="3" name="proxy_cache"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">fastcgi相关：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" rows="3" name="fastcgi"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="inputPassword3" class="col-sm-2 control-label">location 其它配置项：</label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" rows="3" name="other_location"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="input3" class="col-sm-2 control-label">server：</label>
+                                                <div class="col-sm-5">
+                                                    <div class="sumoselect_demo" id="sumoselect_demo2" style="width:100%;">
+                                                        <select id="servers" name="servers" size="6" class="form-control m-b" multiple>
+                                                            {% for server in server_all %}
+                                                                <option value="{{ server.id }}">{{ server.server_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <p class="help-block">server名称(支持多选)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="input3" class="col-sm-2 control-label">server_ssl：</label>
+                                                <div class="col-sm-5">
+                                                    <div class="sumoselect_demo" id="sumoselect_demo2" style="width:100%;">
+                                                        <select id="server_ssl_s" name="server_ssl_s" size="6" class="form-control m-b" multiple>
+                                                            {% for server_ssl in server_ssl_all %}
+                                                                <option value="{{ server_ssl.id }}">{{ server_ssl.server_ssl_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <p class="help-block">server_ssl名称(支持多选)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-10 col-sm-offset-2">
+                                                    <button type="submit" class="king-btn king-primary mr10">保存</button>
+                                                    <button type="reset" value="Reset">重置</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--<div class="tab-pane fade" id="bind">
+                                
+                                <div class="panel panel-tables">
+                                    <div class="p20">
+                                        <a class="king-btn king-radius king-primary" title="保存绑定关系">保存绑定关系</a>
+                                        <span class="hint-info"><i class="hint"></i>勾选配置文件以进行绑定，反选以进行解绑</span>
+                                    </div>
+
+                                        <div class="panel-content">
+                                            <div class="table-group">
+                                                <div class="table-title">
+                                                    <i class="fa fa-files-o"></i>Common
+                                                </div>
+                                                <table class="table table-out-bordered table-header-bg table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <th style="width:38px;text-align:center;"><input type="checkbox" value=""></th>
+                                                        <th>功能ID</th>
+                                                        <th>功能名称</th>
+                                                        <th>进程名称</th>
+                                                        <th>工作路径</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    
+                                                    <tr>
+                                                        <td align="center"><input type="checkbox" value=""></td>
+                                                        <td>1</td>
+                                                        <td>xxxx</td>
+                                                        <td>xx</td>
+                                                        <td>/data/home/user00/ttdsg/cfg</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center"><input type="checkbox" value=""></td>
+                                                        <td>1</td>
+                                                        <td>xxxx</td>
+                                                        <td>xx</td>
+                                                        <td>/data/home/user00/ttdsg/cfg</td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="table-group">
+                                                <div class="table-title">
+                                                    <i class="fa fa-files-o"></i>未分组(默认)
+                                                </div>
+                                                <table class="table table-out-bordered table-header-bg table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <th style="width:38px;text-align:center;"><input type="checkbox" value=""></th>
+                                                        <th>功能ID</th>
+                                                        <th>功能名称</th>
+                                                        <th>进程名称</th>
+                                                        <th>工作路径</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    
+                                                    <tr>
+                                                        <td align="center"><input type="checkbox" value=""></td>
+                                                        <td>1</td>
+                                                        <td>xxxx</td>
+                                                        <td>xx</td>
+                                                        <td>/data/home/user00/ttdsg/cfg</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center"><input type="checkbox" value=""></td>
+                                                        <td>1</td>
+                                                        <td>xxxx</td>
+                                                        <td>xx</td>
+                                                        <td>/data/home/user00/ttdsg/cfg</td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endautoescape %}
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+    $('#sumoselect_demo3 select').SumoSelect({
+        okCancelInMulti: true
+    });
+
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'location_list' %}']").parent().addClass('active');
+
+    $("#location_add").validate({
+        rules: {
+          location_name: {
+            required: true
+          }
+        },
+        messages: {
+          location_name: {
+            required: "请输入location名称"
+          }
+        }
+    });
+</script>
+
+{% endblock %}

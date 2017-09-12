@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block content %}
+
+    <div id="mask" class="mask"></div>
+    <div class="king-main-container">
+        <div class="container-fluid">
+            <div class="panel panel-default pannel-overflow panel-tables">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>配置列表
+                </div>
+                <div class="panel-btns">
+                    <a href="{% url 'infor_add' %}" class="king-btn king-radius king-primary" title="添加变量">添加配置</a>
+                </div>  
+                <div class="panel-body panel-search-body">
+                    
+                    <div class="panel-content">
+                        <form id="contents_form" name="contents_form">
+                        <table class="table table-out-bordered table-header-bg table-hover" id="table_demo2">
+                            <thead>
+                            <tr>
+                                <th style="width: 25px">
+                                    <input type="checkbox" id="ckall" onclick="checkEvent('ck','ckall')" />
+                                </th>
+                                <th style="width:15%">隶属配置组</th>
+                                <th style="width:20%">配置名称</th>
+                                <th style="width:12%">包含upstream数目</th>
+                                <th style="width:12%">包含server数目</th>
+                                <th style="width:12%">包含server_ssl数目</th>
+                                <th style="width:20%">备注</th>
+                                <th>操作</th>                            
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for infor in infors %}
+                            <tr class="gradeX">
+                                <td class="text-center" name="id" value="{{ infor.id }}" data-editable='false'>
+                                    <input name="ck" value="{{ infor.id }}" type="checkbox" class="i-checks">
+                                </td>
+                                <td><a href="{% url 'group_list' %}?id={{ infor.group.id }}">{{infor.group.groupname}}</a></td>
+                                <td><a class="conf_filename" href="{% url 'infor_detail' %}?id={{ infor.id }}">{{infor.full_name}}</a></td>
+                                <td><a href="{% url 'upstream_list' %}?infor_id={{ infor.id }}">{{infor.nginx_upstream_detail.count}}</a></td>
+                                <td><a href="{% url 'server_list' %}?infor_id={{ infor.id }}">{{infor.nginx_server_detail.count}}</a></td>
+                                <td><a href="{% url 'server_ssl_list' %}?infor_id={{ infor.id }}">{{infor.nginx_server_ssl_detail.count}}</a></td>
+                                <td>{{infor.comment}}</td>
+                                <td>
+                                    <a href="{% url 'infor_edit' %}?id={{ infor.id }}" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i></a>
+                                    <a value="{% url 'infor_del' %}?id={{ infor.id }}" class="btn btn-xs btn-danger infor_del"><i class="glyphicon glyphicon-remove"></i></a>
+                                    <a id="aa"  value="id={{ infor.id }}" class="btn btn-xs show-dialog-btn nginxt" data-toggle="tooltip" data-placement="top" title="配置检查，相当于：nginx -t"><i class="glyphicon glyphicon-ok"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td></td>
+                                <td colspan="7">
+                                    <div class="pull-left">
+                                        <a class="king-btn king-radius king-danger" id="del_check" title="删除">删除</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="dataTables_info" id="table_demo2" role="status" aria-live="polite">
+                                    Showing {{ infors.start_index }} to {{ infors.end_index }} of {{ p.count }} entries
+                                </div>
+                            </div>
+                            {% include 'paginator.html' %}
+                        </div>
+                        <div style="text-align: center; z-index: 10002;display: none" class="loading">
+                            <img alt="loadding" src="http://t.open.oa.com/static_api/v3/components/loading1/images/loading_2_36x36.gif" style="text-align: center "/>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block self_footer_js %}
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('.infor_del').click(function(){
+            var row = $(this).closest('tr');
+            if (confirm('确定删除')) {
+                $.get(
+                        $(this).attr('value'),
+                        {},
+                        function (data) {
+                            row.remove();
+                        }
+                )
+            }
+        });
+
+    $('#del_check').click(function(){
+        var check_array = [];
+        if (confirm('确定删除')){
+            $('tr.gradeX input:checked').each(function(){
+                check_array.push($(this).attr('value'))
+            });
+            $.get(
+                    '{% url "infor_del" %}',
+                    {id: check_array.join(',')},
+                    function(data){
+                        $('tr.gradeX input:checked').closest('tr').remove();
+                    }
+            )
+        }
+    })
+    });
+
+    function checkEvent(name,allCheckId)
+        {
+          var allCk=document.getElementById(allCheckId);
+          if(allCk.checked==true)
+          checkAll(name);
+          else
+          checkAllNo(name);
+
+        }
+
+    function checkAll(name)
+        {
+          var names=document.getElementsByName(name);
+          var len=names.length;
+          if(len>0)
+          {
+           var i=0;
+           for(i=0;i<len;i++)
+           names[i].checked=true;
+
+          }
+        }
+
+    function checkAllNo(name)
+        {
+          var names=document.getElementsByName(name);
+         var len=names.length;
+         if(len>0)
+          {
+            var i=0;
+            for(i=0;i<len;i++)
+            names[i].checked=false;
+          }
+        }
+
+    function change_info(){
+        var args = $("#contents_form").serialize();
+        window.location = "{% url 'infor_list' %}?" + args
+    }
+
+    function showMask(){
+        $(".mask").css("height",$(document).height());
+        $(".mask").css("width",$(document).width());
+        $(".mask").show();
+    }
+
+    function hideMask(){
+        $(".mask").hide();
+    }
+
+    $(".show-dialog-btn").click(function(){
+        showMask();
+        $(".loading").css('display','block');
+        var infor_id=$("#aa").attr("value");
+        $.ajax({
+            url: 'nginxtest/detail/', data:infor_id, success: function(result) {
+                var _html = "nginx配置测试结果:  "+ result;
+                var d = dialog({
+                    width: 800,
+                    zIndex: 10003,
+                    content: _html,
+                    okValue: '确定',
+                    ok: function () {
+                        window.location.reload();
+                    }
+            });
+                d.showModal();
+                $(".loading").css('display','none');
+                hideMask();
+                return false;
+        }
+    });
+});
+
+    $('.nginxt').tooltip()
+
+</script>
+
+{% endblock %}

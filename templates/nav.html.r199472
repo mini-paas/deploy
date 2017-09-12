@@ -1,0 +1,86 @@
+    <header>
+        <div class="navbar navbar-black">
+            <div class="navbar-container">
+                <div class="navbar-header pull-left">
+                    <a class="navbar-brand" href="#">
+                        <i class="fa fa-leaf"></i>
+                        阅文SA平台
+                    </a>
+                </div>
+
+                <div class="navbar-header pull-right">
+                    <ul class="nav">
+                        <li class="user-info">
+                            <a href="#">
+                                <img class="img-rounded" src="{{STATIC_URL}}img/avatar.png">
+                                <span id="user"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+<div class="king-vertical-nav4">
+    <div class="sidebar-inner">
+        <ul class="navi">
+            <li class="current">
+                <a href="{% url 'index' %}">
+                    <i class="fa fa-gear"></i>首页
+                </a>
+            </li>
+            <li class="has_submenu">
+                <a href="javascript:">
+                    <i class="fa fa-ellipsis-h"></i>nginx配置
+                    <span class="pull-right"><i class="fa fa-angle-down"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a href="{% url 'group_list' %}">nginx配置组<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                    <li>
+                        <a href="{% url 'infor_list' %}">nginx配置<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                    <li style="padding-left: 70px;">
+                        <a href="{% url 'upstream_grouplist' %}">nginx_upstream<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                    <li style="padding-left: 70px;">
+                        <a href="{% url 'server_list' %}">nginx_server<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                    <li style="padding-left: 70px;">
+                        <a href="{% url 'server_ssl_list' %}">nginx_server_ssl<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                    <li style="padding-left: 90px;">
+                        <a href="{% url 'location_list' %}">nginx_location<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                </ul>
+            </li>
+            <li class="last has_submenu">
+                <a href="javascript:">
+                    <i class="fa fa-tasks"></i>任务操作
+                    <span class="pull-right"><i class="fa fa-angle-down"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a href="{% url 'hosts_multi' %}">任务操作<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                    <li>
+                        <a href="/s/yw_deploy/deploy/api/task/list/">任务管理<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                </ul>
+            </li>
+            <li class="last has_submenu opertion">
+                <a href="javascript:">
+                    <i class="fa fa-history"></i>操作记录
+                    <span class="pull-right"><i class="fa fa-angle-down"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a href="{% url 'user_audit' '1' %}">操作日志<i class="fa fa-chevron-right pull-right"></i></a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>

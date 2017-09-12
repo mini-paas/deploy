@@ -1,0 +1,1073 @@
+{% extends 'base.html' %}
+{% block content %}
+{% block self_head_css_js %}
+<link href="http://t.open.oa.com/static_api/v3/assets/kendoui-2015.2.624/styles/kendo.common.min.css" rel="stylesheet">
+<link href="http://t.open.oa.com/static_api/v3/assets/kendoui-2015.2.624/styles/kendo.default.min.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/kendoui-2015.2.624/js/kendo.all.min.js"></script>
+<style>
+.tooltip-inner {
+    text-align: left;
+    max-width:800px;
+}
+
+.k-grid-下载{
+    color:white;
+    /*background-color:#286090;*/
+    background-color:#337ab7;
+}
+
+.k-grid-删除{
+    color:white;
+    /*background-color:#d26a5c;*/
+    background-color:#d26a5c;
+}
+textarea::-webkit-input-placeholder:after{
+  display:block;
+  content:"line@ \A line#";/*  \A 表示换行  */
+  color:red;
+}
+</style>
+{% endblock %}
+{% load custom_tag %}
+
+<div class="king-main-container">
+    <div class="container-fluid">
+        <div class="panel panel-default pannel-overflow panel-list">
+            <div class="panel-heading">
+                <i class="fa fa-list-ul"></i>业务模块IP列表
+            </div>
+            <div class="panel-body">
+                <div class="panel-content">
+                    <h6><i class="fa fa-sitemap"></i>业务集</h6>
+                    <div id="plugin11_demo4" class="demo"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="add_job" class="task-tables" style="height: 100%">
+            <div class="task-heading">
+                <i class="fa fa-list-ul"></i> 新增任务
+            </div>
+
+            <!--<ul class="nav nav-tabs">-->
+              <!--<li role="presentation" class="active selectNav"><a href="#">上传</a></li>-->
+              <!--<li role="presentation" class="selectNav"><a href="#">下载</a></li>-->
+            <!--</ul>-->
+
+            <div class="task-btns" style="height: 96%;overflow-y:auto;">
+                <!--<div class="">-->
+                    <!--<p style="display: inline-block">是否需要上传文件</p>-->
+                    <!--<div class="yon" style="display: inline-block;margin-left: 15px;">-->
+                        <!--<label class="radio-inline">-->
+                          <!--<input type="radio" name="inlineRadioOptions" id="yes" value="yes"> 是-->
+                        <!--</label>-->
+                        <!--<label class="radio-inline">-->
+                          <!--<input type="radio" name="inlineRadioOptions" id="no" value="no" checked> 否-->
+                        <!--</label>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div id="uploader" class="wu-example" style="display: none">-->
+                    <!--<div id="thelist" class="uploader-list"></div>-->
+                    <!--<div class="btns">-->
+                        <!--<div id="picker" style="display: inline-block;">选择文件</div>-->
+                        <!--<button id="retryBtn" class="btn btn-default" style="background: #4797E7;color: white;height: 40px;position: relative;top: -16px;display: none;border-radius:3px;">重新上传</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <div style="background-color: #F5F5F5;padding-bottom: 5px;">
+                    <label style="padding-left: 0px;padding-top: 5px;display:inline-block;margin: 10px;">名称相关</label>
+                    <div class="plugin3_demo" id="plugin3_demo7" style="display:inline-block;margin: 10px;margin-top: 10px;margin-left: 1px;">
+                         <input class="select2_box" id="select2_box1" style="width:300px;">
+                         <input class="select2_box2" id="select2_box2" style="width:300px;">
+                         <label style="padding-left: 10px;">任务名称</label>
+                         <input type="text" id="taskname" style="margin-left: 10px;width: 512px;height:34px" placeholder="">
+                    </div>
+
+                    <!--<div style="margin-top: 8px;margin: 10px;">-->
+                        <!--<label for="taskname" style="padding-left: 0px;padding-top: 5px;display:inline-block;">任务名称</label>-->
+                        <!--<div style="padding-left:10px;width: 95%;display:inline-block;">-->
+                          <!--<input type="text" class="form-control" id="taskname" placeholder="">-->
+                        <!--</div>-->
+                    <!--</div>-->
+                </div>
+                <!--<form action="/s/yw_deploy/deploy/api/task/file_upload/" class="dropzone" id="uploader" style="display: none;margin-bottom: 10px;">-->
+                    <!--<div class="dz-message" data-dz-message><span>把要传到远程的文件拖到这里<br>如果文件数量较多,建议上传前将文件打包</span></div>-->
+                <!--</form>-->
+                <div style="background-color: #F5F5F5;margin-top: 20px;">
+                    <label style="margin: 10px;">上传文件</label>
+                    <div class="dropzone" id="uploader" style="margin: 10px;margin-top: 0px;">
+                        <div class="dz-message" style="padding-top: 10px;" data-dz-message><span>把要传到远程的文件拖到这里<br>如果文件数量较多,建议上传前将文件打包</span></div>
+                    </div>
+
+                    <div id="table4_demo1" class="mb30 demo" style="margin:10px;margin-bottom: 10px !important;"></div>
+                    <div style="height: 5px;"></div>
+                </div>
+              <!--<div id="path" style="display: none;">-->
+                <!--<label for="filepath" style="padding-left: 0px;padding-top: 5px;display:inline-block;">远程文件路径</label>-->
+                <!--<div style="padding-left:10px;width: 93%;display:inline-block;">-->
+                  <!--<input type="text" class="form-control" id="filepath" placeholder="必须是目标服务器上已存在的目录绝对路径(不包含文件名)">-->
+                <!--</div>-->
+                  <!--<div style="clear: both;"></div>-->
+              <!--</div>-->
+                <div style="background-color: #F5F5F5;">
+                    <div style="margin: 10px;padding-bottom: 10px;">
+                        <label for="command" style="padding-bottom:5px;padding-top:5px;margin-top:5px;">输入执行命令</label>
+                        <textarea id="command" class="form-control" data-toggle="tooltip" data-placement="top" data-html="true" title="执行命令例子: <br> cd /data <br> ls <br> tar xf file.tar.gz <br> 下载文件例子: <br> wget http://radosgw.open.oa.com/app-yw_deploy-test/uploads/task_data/tmp/kgxsnbcy/1.png" rows="11" placeholder="每行一条命令，命令结尾不需加其它符号&#10;下载文件请使用url方式&#10;url格式：http://radosgw.open.oa.com/app-yw_deploy-test/uploads/task_data/tmp/  + ‘文件路径' +   '文件名称'"></textarea>
+                    </div>
+                </div>
+
+                <!--<div class="panel-content">-->
+                    <!--<div class="pad-ver">-->
+                        <!--<button id="task-exec-btn" type="button" class="btn btn-success btn-labeled">-->
+                            <!--<span class="btn-label"><i class="fa fa-bicycle"></i></span> 执行命令-->
+                        <!--</button>-->
+                        <!--<button onclick="TerminateTask()" id="mail-save-btn" type="button" class="btn btn-danger btn-labeled">-->
+                            <!--<span class="btn-label"><i class="fa fa-stop"></i></span> 停止-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <div>
+                        <button type="button" class="king-btn king-primary mr10 taskSave">保存</button>
+                        <button type="button" class="taskCancel" style="min-width: 90px;height: 30px;">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="feedback" class="task-tables" style="margin-top: 17px;height: 63%;display: none">
+            <div class="task-heading">
+                <i class="fa fa-list-ul"></i> 任务结果
+            </div>
+
+            <div class="task-btns" style="height: 95%;padding-right: 0px;">
+                <div class="panel-body" style="padding-left: 0px;padding-right:0px;padding-top: 0px;padding-bottom: 50px;margin-top: 0px;height: 100%;">
+                    <div class="pad-ver task_summary_panel">
+                        <span id="current_task_id" style="font-size:15px;background-color:gray" class="badge badge-primary">任务ID:<span></span></span>
+                        <span id="total_tasks"  style="font-size:15px;background-color:dodgerblue" class="badge badge-primary">总任务<span>n/a</span></span>
+                        <span id="finished_tasks" style="font-size:15px;background-color:darkcyan" class="badge badge-success">已完成<span>n/a</span></span>
+                        <span id="failed_tasks"  style="font-size:15px;background-color:red" class="badge badge-danger">失败<span>n/a</span></span>
+                        <span id="unkown_tasks" style="font-size:15px;background-color:darkorange" class="badge badge-warning">剩余<span>n/a</span></span>
+                        <span onclick="task_detail_toggle('chosen',this)" style="font-size:15px;background-color:gray" class="badge badge-primary"><i class="fa fa-chevron-circle-down"></i>收缩/展开</span>
+                    </div>
+                    <div class="task_result" style="height: 100%;overflow-y: auto;">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="taskRunConfirmModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">任务执行确认</h4>
+      </div>
+      <div class="modal-body">
+        <span id="modal_content">确定要执行么？</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="refresh_result" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" id="submit_task_confirm" url="/s/yw_deploy/deploy/api/task/action/" class="btn btn-primary">确定执行</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block self_footer_js %}
+
+<link rel="stylesheet" href="http://t.open.oa.com/static_api/v3/assets/jstree-3.1.1/dist/themes/default/style.min.css" />
+<script src="http://t.open.oa.com/static_api/v3/assets/jstree-3.1.1/dist/jstree.min.js"></script>
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.css" rel="stylesheet">
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2-2.0.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.js"></script>
+
+<script type="text/javascript">
+//    filenameArray = [];
+    var uploaded = "no";
+    var executed = 0;
+    var uploadFileSuccess = false;
+    $("#command").tooltip();
+
+    $.ajax("/s/yw_tocnew/api/cmdb_api/", {
+        dataType: 'json'
+    }).success(function (data) {
+        $("#plugin3_demo7 .select2_box").select2({
+            data: data,
+            placeholder: "选择业务"
+        });
+    });
+
+    $("#plugin3_demo7 .select2_box2").select2({
+        data: [{"id":1, "text":"自定义任务"}],
+        placeholder: "选择任务"
+    });
+
+    function localPath() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < 8; i++){
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+
+        return text;
+    }
+
+//    function localPath() {
+//        return Math.random().toString(36).substr(2, 8)
+//    }
+
+    localpath = localPath();
+    $('#plugin11_demo4').jstree({
+        'core': {
+            'data': {
+                "url": "/s/yw_tocnew/api/cmdb_api/",
+                "dataType": 'json',
+                "data": function (node) {
+                    return {"id": node.id};
+                }
+            },
+            "dblclick_toggle": true,
+            "multiple": true
+        },
+        "checkbox": {
+            "keep_selected_style": false,//是否默认选中
+            "undetermined": false,
+            "three_state": false   //jstree 父节点与子节点操作互不影响(不级联)，否则点父目录就卡死了
+        },
+        "plugins": ["checkbox"]
+    }).on('ready.jstree', function (e,data) {
+        $("#plugin11_demo4 > ul > li > a > i.jstree-checkbox").hide();
+
+            receiveDic = {
+                "selected_hosts": ["10.212.4.103","10.247.135.236", "10.226.10.14"],
+                "cmd": {
+                    "first":{"text":"起点中文-就是一个测试-['599355/600561/600565','514353/514355/514357']"},
+                    "second":{"text":"自定义任务"},
+                    "third":{"text":"cd /data;ls"}
+                }
+            };
+//            $("#plugin11_demo4").jstree('open_all');
+//             group = {"business":"起点中文", "task": "自定义任务", "taskname":"就是一个测试", "command":"cd /data;ls"};
+             $("#plugin3_demo7 .select2_box").select2("data", {text: receiveDic["cmd"]["first"]["text"].split("-")[0]});
+             $("#plugin3_demo7 .select2_box2").select2("data", {text: receiveDic["cmd"]["first"]["text"].split("-")[1]});
+             $("#taskname").val(receiveDic["cmd"]["second"]["text"]);
+             $("#command").val(receiveDic["cmd"]["third"]["text"].replace(/;/,"\r\n"));
+
+//             ip_list = ["599355/600561/600565","514353/514355/514357","10.212.4.103","10.247.135.236", "10.226.10.14"];
+             ip_list = eval(receiveDic["cmd"]["first"]["text"].split("-")[2]);
+             secondArray = [];
+             thirdArray = [];
+//             for(var i in ip_list){
+//                 if(ip_list[i].indexOf("/") != -1){
+//                     first = ip_list[i].split("/")[0];
+//                     secondArray.push(ip_list[i].split("/")[0] + "/" + ip_list[i].split("/")[1]);
+//                     thirdArray.push(ip_list[i]);
+//                     $(this).jstree("open_node", first)
+//                 }
+//             }
+             for(var i in ip_list){
+                 first = ip_list[i].split("/")[0];
+                 secondArray.push(ip_list[i].split("/")[0] + "/" + ip_list[i].split("/")[1]);
+                 thirdArray.push(ip_list[i]);
+                 $(this).jstree("open_node", first)
+             }
+        }).on('open_node.jstree', function (e,data) {
+            $("#plugin11_demo4 > ul > li > a > i.jstree-checkbox").hide();
+            $("#plugin11_demo4 > ul > li > ul > li > a > i.jstree-checkbox").hide();
+            $("#plugin11_demo4 > ul > li > ul > li > ul > li > a > i.jstree-checkbox").hide();
+            for(second in secondArray){
+                $(this).jstree("open_node", secondArray[second]);
+
+                if(data.node.id == secondArray[second]){
+                    $(this).jstree("open_node", thirdArray[second], function () {
+//                        for(i in ip_list){
+//                            if(ip_list[i].indexOf('/') == -1){
+//                                $("#plugin11_demo4").jstree("select_node", ip_list[i]);
+//                                console.log($("li").find($("li[id='" + ip_list[i] + "']")).parents("li").attr("id"));
+//                            }
+//                        }
+                        for(i in receiveDic["selected_hosts"]){
+                            $("#plugin11_demo4").jstree("select_node", receiveDic["selected_hosts"][i]);
+                            console.log($("li").find($("li[id='" + receiveDic["selected_hosts"][i] + "']")).parents("li").attr("id"));
+                        }
+                    });
+                }
+            }
+        });
+
+    $("#task-exec-btn").click(function () {
+//        var filepath = $("#filepath").val();
+        var command = $("#command").val().replace(/(\r\n|\n|\r)/gm,";");
+        var nodes = $("#plugin11_demo4").jstree(true).get_selected();
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].indexOf('/') > 0) {
+                nodes.splice(i, 1)
+            }
+
+            if(jQuery.inArray('.', nodes[i]) == -1){
+                 nodes.splice(i, 1)
+            }
+        }
+        if(nodes.length == 0) {
+//            swal("未选中任何主机执行任务", "", "error");
+                var d = dialog({
+                    width: 260,
+                    title: '执行失败',
+                    content: "未选中任何主机执行任务",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+                    }
+                });
+                d.showModal();
+            return false;
+        }
+        else if($("#command").val() == ""){
+//            swal("请输入命令执行语句", "", "error");
+                var d = dialog({
+                    width: 260,
+                    title: '执行失败',
+                    content: "请输入命令执行语句",
+                    okValue: '关闭',
+                    ok: function() {
+                        // do something
+                    }
+                });
+                d.showModal();
+            return false;
+        }else{
+            if($("input[name='inlineRadioOptions']:checked").attr("value") == "yes") {
+                uploaded = "yes";
+                postDicUpload = {
+                    "selected_hosts": JSON.stringify(nodes),
+                    "cmd": JSON.stringify({
+                        "first": {"id": "", "text": "文件上传"},
+                        "second": {"id": "", "text": localpath},
+//                        "third": {"id": "", "text": filepath}
+                        "third": {"id": "", "text": ""}
+                    })
+                };
+
+                postDicExec = {
+                    "selected_hosts": JSON.stringify(nodes),
+                    "cmd": JSON.stringify({
+                        "first": {"id": "", "text": "命令执行"},
+                        "second": {"id": "", "text": ""},
+                        "third": {"id": "", "text": command}
+                    })
+                };
+            }else{
+                postDicExec = {
+                    "selected_hosts": JSON.stringify(nodes),
+                    "cmd": JSON.stringify({
+                        "first": {"id": "", "text": "命令执行"},
+                        "second": {"id": "", "text": ""},
+                        "third": {"id": "", "text": command}
+                    })
+                };
+
+                status = true;
+            }
+            if($("#submit_task_confirm").css("display") == "none"){
+                $("#submit_task_confirm").prop("disabled",false);
+                $("#submit_task_confirm").css("display","inline")
+            }
+            $("#taskRunConfirmModal").modal('show');
+        }
+    });
+
+    $("#submit_task_confirm").click('on', function () {
+        $(this).attr("disabled", true);
+        $("#add_job").css("height","35%");
+        $("#feedback").css("display", "block");
+        $("#modal_content").html("正在创建任务编号...");
+        if($("input[name='inlineRadioOptions']:checked").attr("value") == "yes"){
+            var url = '/s/yw_deploy/deploy/api/task/file/';
+            var postDic = postDicUpload;
+//            filepathContent = $("#filepath").val();
+            uploadFile();
+
+            function uploadFile() {
+                $.post(url, postDic, function (callback) {
+                    if (callback != 'TaskCreatingError'){
+                        $("#submit_task_confirm").css("display","none");
+                        $("#modal_content").html("任务执行成功! 任务编号:" + callback);
+                        $("#modal_content").attr("style","color:green;font:bold");
+                        $(".task_result").html("");
+                        GetTaskResult(callback,'refresh');
+                    }else{
+                        $("#modal_content").html("任务创建失败，请查看相关日志进行调试！");
+                        $("#modal_content").attr("style","color:red;font:bold");
+                        status = confirm("是否继续执行命令?点否重传");
+                        if(!status){
+                            return arguments.callee
+                        }
+                    }
+                });
+            }
+        }
+
+        if(status){
+            var url = $(this).attr('url');
+            var postDic = postDicExec;
+
+            $.post(url, postDic, function (callback) {
+                if (callback != 'TaskCreatingError'){
+                    $("#submit_task_confirm").css("display","none");
+                    $("#modal_content").html("任务执行成功! 任务编号:" + callback);
+                    $("#modal_content").attr("style","color:green;font:bold");
+                    $(".task_result").html("");
+                    GetTaskResult(callback,'refresh');
+                }else{
+                    $("#modal_content").html("任务创建失败，请查看相关日志进行调试！");
+                    $("#modal_content").attr("style","color:red;font:bold")
+                }
+            });
+        }
+
+        executed += 1;
+        resultContent = $(".task_result").html();
+        commandContent = $("#command").val();
+    });
+
+    function local_clean() {
+        $('#plugin11_demo4').jstree('deselect_all');
+        $('#plugin11_demo4').jstree('close_all');
+    }
+
+    function TerminateTask(){
+        var current_task_id = $("#current_task_id span").text();
+        if (current_task_id != ''){
+            $.post("{% url 'task_abort' %}", {'task_id':current_task_id},function(callback){
+                if (callback.indexOf("has terminated") > -1){
+                    clearInterval(ResultRefresh);
+
+                    show_alert_info([callback]);
+                     $("#submit_task_confirm").prop("disabled",false);
+                }else{
+
+                    show_alert_warning([callback]);
+                }
+            });
+        }else{
+            show_alert(['当前无任务运行，停止个毛线？']);
+        }
+    }
+
+
+    function GetTaskResult(task_id,run_type){
+        if (run_type=='refresh'){
+            PrintTaskResult(task_id);
+            ResultRefresh = setInterval(function(){
+                PrintTaskResult(task_id);
+            },3000);
+        }else{
+            var one_time_run = null;
+        }
+    }
+
+    function ChangeBadgeSize(ele){
+        $(".task_summary_panel span").css("font-size","15px");
+        $(ele).css("font-size","20px");
+    }
+
+    function show_alert(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'danger',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">验证错误!</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-danger" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    function show_alert_info(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'info',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">Message</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-info" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    function show_alert_warning(msg_list) {
+        var err_msg = "";
+        for (msg_index in msg_list) {
+            err_msg += msg_index + ". " + msg_list[msg_index] + "<br/>";
+        }
+
+        $.niftyNoty({
+            type: 'warning',
+            container: '#alert-panel',
+            html: '<h4 class="alert-title">Warning</h4>' +
+            '<p class="alert-message">' + err_msg + '</p>' +
+            '<div class="mar-top">' +
+            '<button type="button" class="btn btn-warning" data-dismiss="noty">知道了</button>' +
+            '</div>',
+            closeBtn: false
+        });
+    }
+
+    $("#refresh_result").click('on', function () {
+        local_clean();
+    });
+
+    function PrintTaskResult(task_id){
+        $.getJSON('/s/yw_deploy/deploy/api/task/res/', {'task_id':task_id},function(logdata) {
+        $("#current_task_id span").html(logdata['summary'].id);
+        $("#total_tasks span").html(logdata['summary'].host_num);
+        $("#finished_tasks span").html(logdata['summary'].finished_num);
+        $("#failed_tasks span").html(logdata['summary'].failed_num);
+        $("#unkown_tasks span").html(logdata['summary'].unknown_num);
+
+        $.each(logdata['detail'], function (key, log) {
+            var d = logdata['detail'][key];
+            if (d.result == 'success') {
+                var task_res = '<span class="task_res_status badge badge-success">' + d.result + '</span>';
+            } else if (d.result == 'failed') {
+                var task_res = '<span class="task_res_status badge badge-danger">' + d.result + '</span>';
+            } else {
+                var task_res = '<span class="task_res_status badge badge-warning">' + d.result + '</span>';
+            }
+
+            if ($(".task_result div[result='host_" + d.host_id + "'] pre").attr("style")=="display: none;"){
+                var res_detail = "<pre style='display: none;'>" + d.event_log + "</pre>";
+            }else{
+                var res_detail = "<pre style='display: block;'>" + d.event_log + "</pre>";
+
+            }
+            if ($(".task_result div[result='host_" + d.host_id + "'] h4").attr("style")=="display: none;"){
+                var h4_ele = "<b style='display: none;'>";
+            }else{
+                var h4_ele = "<b style='display: block;'>";
+
+            }
+
+            var host_info_ele = h4_ele + "<i onclick='ToggleSingleResult(this)'  class='fa fa-plus-square-o fa-plus-task-res'></i> " + d.ip_addr + "(" + d.ip_addr + ") user:" + d.username + " --- Result: " + task_res + "</b>" + res_detail;
+            if ($(".task_result div[result='host_" + d.host_id + "']").length > 0) {
+                $(".task_result div[result='host_" + d.host_id + "']").html(host_info_ele);
+            } else {
+                var res_div = "<div result='host_" + d.host_id + "' class='host_res_head'>" + host_info_ele + "</div>";
+                $(".task_result").append(res_div);
+            }
+        });
+        if (logdata['summary'].unknown_num == 0 ){
+            if (typeof ResultRefresh !='undefined' ){
+                clearInterval(ResultRefresh);
+                $("#submit_task_confirm").prop("disabled",false);
+            }
+
+            $("button[onclick='submit_task(this)']").attr("disabled",false);
+
+            }
+        });
+        }
+
+    function task_detail_toggle(action_type,ele){
+        if (action_type=='all'){
+            $(".task_result b").fadeIn();
+            $(".task_result b").next().fadeIn();
+
+        }else{
+            $(".task_result b").filter(function() { return $(this).css("display") == "block" }).next().fadeToggle();
+
+        }
+
+        if ($(ele).html().search("down") >0){
+            $(ele).html('<i class="fa fa-chevron-circle-up"></i> 收缩/展开');
+
+        }else{
+             $(ele).html('<i class="fa fa-chevron-circle-down"></i> 收缩/展开')
+
+        }
+    }
+
+    function ToggleSingleResult(ele){
+        $(ele).parent().next().fadeToggle();
+    }
+
+    $(".yon").change(function () {
+        if($("input[name='inlineRadioOptions']:checked").attr("value") == "yes"){
+            if(executed == 1 && uploaded == "no"){
+                if($("#feedback").css("display") == "block"){
+                    $("#feedback").css("display", "none");
+                }
+                if($("#add_job").css("height") != "857px"){
+                    $("#add_job").css("height","100%");
+                }
+                if($("#command").val() != ""){
+                    $("#command").val("");
+                }
+//                if($(".task_result").html != ""){
+//                    $(".task_result").html("");
+//                }
+            }else if(executed == 1 && uploaded == "yes"){
+                if($("#feedback").css("display") == "none"){
+                    $("#feedback").css("display", "black");
+                }
+
+                $("#add_job").css("height","35%");
+
+                $("#command").val(commandContent);
+//                $("#filepath").val(filepathContent);
+
+            }else if(executed == 0){
+                $("#command").val("");
+            }
+            $("#uploadFileLabel").css("display","block");
+            $("#uploader").css("display","block");
+            $("#table4_demo1").css("display","block");
+//            $("#path").css("display","block");
+//            $("#path").css("margin-top","-15px");
+        }else if($("input[name='inlineRadioOptions']:checked").attr("value") == "no"){
+            if(executed == 1 && uploaded == "yes"){
+                if($("#feedback").css("display") == "block"){
+                    $("#feedback").css("display", "none");
+                }
+                if($("#add_job").css("height") != "857px"){
+                    $("#add_job").css("height","100%");
+                }
+                if($("#command").val() != ""){
+                    $("#command").val("");
+                }
+//                if($(".task_result").html != ""){
+//                    $(".task_result").html("");
+//                }
+            }else if(executed == 1 && uploaded == "no"){
+                if($("#feedback").css("display") == "none"){
+                    $("#feedback").css("display", "block");
+                }
+
+                $("#add_job").css("height","35%");
+
+                $("#command").val(commandContent);
+            }else if(executed == 0){
+                $("#command").val("");
+//                $("#filepath").val("");
+            }
+            $("#uploadFileLabel").css("display","none");
+            $("#uploader").css("display","none");
+            $("#table4_demo1").css("display","none");
+//            $("#path").css("display","none");
+        }
+    });
+
+
+//
+//        for(i in dataArray){
+//            if(dataArray[i]["file_size"] < 1024){
+//                dataArray[i]["file_size"] += " byte";
+//            }else if(dataArray[i]["file_size"] >= 1024 && dataArray[i]["file_size"] < 1024 * 1024){
+//                dataArray[i]["file_size"] = (dataArray[i]["file_size"] / 1024).toFixed(2) + " KB";
+//            }else if(dataArray[i]["file_size"] >= 1024 * 1024 && dataArray[i]["file_size"] < 1024 * 1024 * 1024){
+//                dataArray[i]["file_size"] = (dataArray[i]["file_size"] / 1024 / 1024).toFixed(2) + " MB";
+//            }
+//        }
+//        for(i in dataArray){
+//            dataArray[i]["file_size"] = (dataArray[i]["file_size"] / 1024).toFixed(2) + " KB";
+//        }
+
+        $.ajax({
+            type:"get",
+            url: "/s/yw_deploy/deploy/api/task/file_upload/",
+            async: false,
+            success: function (data) {
+                dataArray = [];
+                data = JSON.parse(data);
+                for(i in data.files){
+                    x=data.files[i];
+                    x["id"]=i;
+                    dataArray.unshift(x);
+                }
+
+                for(i in dataArray){
+                    dataArray[i]["file_size"] = (dataArray[i]["file_size"] / 1024).toFixed(2) + " KB";
+                }
+            }
+        });
+
+
+        $('#table4_demo1').kendoGrid({
+            pageable: {
+                pageSize: 5,
+                buttonCount: 3
+            },
+            sortable: true,
+            dataSource: {
+                sort: { field: "file_create_time", dir: "desc" },
+                data: dataArray
+//                data:[
+//                    {"id": 1,"file_name": "file.tar.gz","files_dir": "/data", "file_size": "20M", "file_create_time": "2017-07-20 14:50:11","user": "user1" },
+//                    {"id": 1,"file_name": "file.tar.gz","files_dir": "/data", "file_size": "20M", "file_create_time": "2017-07-20 15:50:11","user": "user1" },
+//                    {"id": 1,"file_name": "file.tar.gz","files_dir": "/data", "file_size": "20M", "file_create_time": "2017-07-20 16:50:11","user": "user1" }
+//                ]
+             },
+            toolbar: [
+                {
+                   template:  '<div class="clearfix pt5 pb5 pl5" style="line-height: 100%">'+
+                              '<span class="select_file" style="position: absolute;top: 5%;color:red">已上传文件列表</span>'+
+                              '<form class="form-inline king-search-form king-no-bg  pull-right">'+
+                              '  <div class="form-group">'+
+                              '      <label>搜索：</label>'+
+                              '      <div class="input-group">'+
+                              '          <input type="text" class="keyword form-control" placeholder="请输入文件名称">'+
+                              '      </div>'+
+                              '  </div>'+
+                              '</form>'+
+                              '</div>'
+                }
+            ],
+//            navigatable: true,
+//            selectable: "row",
+            columns: [
+                {
+                    field: 'id',
+                    title: '文件id',
+                    hidden: true
+                },
+                {
+                    field: 'file_name',
+                    title: '文件名称',
+                    width: 300
+                },
+                {
+                    field: 'file_size',
+                    title: '文件大小'
+                },
+                {
+                    field: 'files_dir',
+                    title: '文件路径',
+//                    hidden: true
+                },
+                {
+                    field: 'file_create_time',
+                    title: '上传日期'
+                },
+                {
+                    field: 'user',
+                    title: '上传者'
+                },
+//                { command: [{ text: "选择", click: selectFile }, { text: "删除", click: deleteFile }],title: "操作", width: "180px" }
+                { command: [{ text: "下载", click: downloadFile },{ text: "删除", click: deleteFile }],title: "操作", width: "180px" }
+            ]
+        });
+
+//        function selectFile(e) {
+//            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+//            if(e.target.innerText == "选择"){
+//                e.target.innerText = "取消选择";
+//                filenameArray.unshift(dataItem.filename);
+//            }else{
+//                e.target.innerText = "选择";
+//                filenameArray.splice($.inArray(dataItem.filename, filenameArray),1)
+//            }
+//
+//            $(".select_file").html("要下发的文件为:<span style='color:blue'>" + filenameArray + "</span>")
+//        }
+        function downloadFile(e) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var downloadUrl = "/s/yw_deploy/deploy/api/task/file_download/" + dataItem.files_dir + "/";
+            var params = {"filename":dataItem.file_name};
+
+                $.ajax({
+                    type:"post",
+                    url: "/s/yw_deploy/deploy/api/task/file_download/" + dataItem.files_dir + "/",
+                    data: {"filename":dataItem.file_name},
+                    success: function (response,status,request) {
+                          var disp = request.getResponseHeader('Content-Disposition');
+                            if (disp && disp.search('attachment') != -1) {
+                            var form = $('<form method="POST" action="' + downloadUrl + '">');
+                            $.each(params, function(k, v) {
+                                form.append($('<input type="hidden" name="' + k +
+                                    '" value="' + v + '">'));
+                                });
+                            form.appendTo('body').submit().remove();
+                            return;
+                          }
+                          if(response.status == "ok"){
+                             showResult(response.data);
+                          }else{
+                              try{
+                                  showError('Error: ', response.msg);
+                              }catch (err){}
+                          }
+                    }
+                });
+        }
+
+        function deleteFile(e) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var table4_demo1 = $("#table4_demo1").data("kendoGrid").dataSource;
+            var url = "/s/yw_deploy/deploy/api/task/file_upload/" + dataItem.files_dir + "/delete/";
+            $.ajax({
+                type:"post",
+                url: url,
+                data: {"fileid":dataItem.id, "filename":dataItem.file_name},
+                success: function (data) {
+                    data = JSON.parse(data);
+                    if(data["msg"]){
+//                        refreshGrid();
+//                        refreshGrid();
+//                        if(uploadFileSuccess){
+//                            initGrid();
+//                        }else{
+                            table4_demo1.remove(dataItem);
+//                        }
+//                        swal({
+//                            title: data["msg"],
+//                            text: "",
+//                            type: "success"
+//                            },
+//                            function () {
+//                                return false;
+//                            });
+                        var d = dialog({
+                            width: 260,
+                            title: '删除成功',
+                            content: data["msg"],
+                            okValue: '关闭',
+                            ok: function() {
+                                // do something
+                            }
+                        });
+                        d.showModal();
+                    }else if(data["error"]){
+//                        swal(data["error"], "", "error");
+
+                          var d = dialog({
+                            width: 260,
+                            title: '删除失败',
+                            content: data["error"],
+                            okValue: '关闭',
+                            ok: function() {
+                                // do something
+                            }
+                        });
+                        d.showModal();
+                    }
+                }
+            });
+        }
+
+        var grid1 = $('#table4_demo1').data('kendoGrid'); //获取kendoUI grid对象
+        $('#table4_demo1').find('.keyword').on('keyup',function(){
+            var keyword = $(this).val();
+            grid1.dataSource.filter({
+                field: 'file_name', //设置搜索字段
+                operator: 'contains', //包含关键字
+                value: keyword
+            });
+        });
+
+//        $(".selectNav").click(function () {
+//            if(!$(this).hasClass("active")){
+//                $(this).siblings(".active").removeClass("active")
+//                $(this).addClass("active");
+//            }
+//            if($(this).context.innerText != "上传"){
+//
+//            }
+//        })
+
+        Dropzone.options.uploader = {
+            url: "/s/yw_deploy/deploy/api/task/file_upload/",
+            method: "post",  //也可用put
+            paramName: "file", //默认为file
+            maxFiles: 6,//一次性上传的文件数量上限
+            maxFilesize: 10, //MB
+//            acceptedFiles: ".jpg,.gif,.png", //上传的类型
+            parallelUploads: 6,
+            addRemoveLinks: true,
+            uploadMultiple: true,
+            dictMaxFilesExceeded: "一次最多上传6个文件！",
+            dictResponseError: '文件上传失败!',
+            dictInvalidFileType: "你不能上传该类型文件,文件类型只能是*.jpg,*.gif,*.png。",
+            dictFallbackMessage: "浏览器不受支持",
+            dictFileTooBig: "单个文件最大10MB.",
+            init: function () {
+                this.on("addedfile", function (file) {
+                    //上传文件时触发的事件
+                });
+                this.on("queuecomplete", function (file) {
+                    refreshGrid();
+                    //上传完成后触发的方法
+                });
+                this.on("success", function (file, serverResponse) {
+                    refreshGrid();
+                    uploadFileSuccess = true;
+                });
+                this.on("removedfile", function (file) {
+                    //删除文件时触发的方法
+                });
+                this.on("error", function (file, serverResponse) {
+                    var serverResponse = document.querySelectorAll('[data-dz-errormessage]');
+                    for(i=0;i<=serverResponse.length-1;i++){
+                        if(serverResponse[i].innerHTML == "单个文件最大10MB."){
+                        }else if(serverResponse[i].innerHTML.indexOf("Page of 404")){
+                            serverResponse[i].innerHTML = '文件上传失败';
+                        }
+                    }
+                });
+            }
+        };
+
+    function refreshGrid() {
+        $.ajax({
+            type:"get",
+            url: "/s/yw_deploy/deploy/api/task/file_upload/",
+            async: false,
+            success: function (data) {
+                dataArray = [];
+                data = JSON.parse(data);
+                for(i in data.files){
+                    x=data.files[i];
+                    x["id"]=i;
+                    dataArray.unshift(x);
+                }
+
+                for(i in dataArray){
+                    dataArray[i]["file_size"] = (dataArray[i]["file_size"] / 1024).toFixed(2) + " KB";
+                }
+                try{
+                    $('#table4_demo1').data('kendoGrid').dataSource.read();
+                    $('#table4_demo1').data('kendoGrid').setDataSource(data());
+                    $('#table4_demo1').data('kendoGrid').pager.refresh();
+
+                    function data() {
+                        return new kendo.data.DataSource({
+                            data: dataArray,
+                            pageSize: 5
+                        });
+                        $(".k-grid-下载").attr("data-toggle","tooltip");
+                        $(".k-grid-下载").attr("data-placement","top");
+                        $(".k-grid-下载").attr("title","下载文件至我的电脑");
+                        $(".k-grid-下载").tooltip();
+                    }
+//                    如果直接用.setDataSource(dataArray),会导致文件上传后，table表刷新的时候，表格分页直接变成0
+//                    The Grid's .setDataSource() function expects an actual kendo.data.DataSource not just an object. Change your .setds() function to return a DataSource:
+                }
+                catch (err){}
+            }
+        });
+    }
+
+    $(".k-grid-下载").attr("data-toggle","tooltip");
+    $(".k-grid-下载").attr("data-placement","top");
+    $(".k-grid-下载").attr("title","下载文件至我的电脑");
+    $(".k-grid-下载").tooltip();
+    
+    $(".taskSave").click(function () {
+        var nodes = $("#plugin11_demo4").jstree(true).get_selected();
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].indexOf('/') > 0) {
+                nodes.splice(i, 1)
+            }
+
+            if(jQuery.inArray('.', nodes[i]) == -1){
+                 nodes.splice(i, 1)
+            }
+        }
+        try{
+            var bussiness = $('#select2_box1').select2('data').text;
+            var task = $('#select2_box2').select2('data').text;
+            var taskname = $("#taskname").val();
+            var command = $("#command").val().replace(/(\r\n|\n|\r)/gm,";");
+        }catch (e){console.log(e)}
+
+        if(nodes.length == 0){
+            var d = dialog({
+                width: 260,
+                title: '主机不能为空',
+                content: "请选择主机",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false;
+        }else if($('#select2_box1').select2('val') == "" || $('#select2_box2').select2('val') == "" || taskname == "" || bussiness == "" || task == ""){
+            var d = dialog({
+                width: 260,
+                title: '名称相关不能为空',
+                content: "名称相关不能为空",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false;
+        }else if(command == ""){
+            var d = dialog({
+                width: 260,
+                title: '执行命令不能为空',
+                content: "请输入执行命令",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false;
+        }
+
+        postDic = {
+            "selected_hosts": JSON.stringify(nodes),
+            "cmd": JSON.stringify({
+                "first":{"text":bussiness + "-" + taskname},
+                "second":{"text":task},
+                "third":{"text":command}
+            })
+        };
+
+        $.post("/s/yw_deploy/deploy/api/tasks/list/", postDic, function (data) {
+            data = JSON.parse(data);
+            if(data.length != 0){
+                window.location.href = "/s/yw_deploy/deploy/api/task/list/";
+            }else{
+              var d = dialog({
+                width: 260,
+                title: '创建失败',
+                content: '创建失败',
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            }
+        })
+    });
+
+    $(".taskCancel").click(function () {
+        window.location.href = "/s/yw_deploy/deploy/api/task/list/";
+    })
+</script>
+
+{% endblock %}

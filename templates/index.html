@@ -1,0 +1,655 @@
+{% extends 'base.html' %}
+{% block content %}
+{% block self_head_css_js %}
+<!--<script src="{{STATIC_URL}}js/exporting.js"></script>  &lt;!&ndash; 去掉Highcharts图右上角的打印及其导出按钮，取消注释后，按钮会显示出来 &ndash;&gt;-->
+<link href="{{STATIC_URL}}css/jquery.dataTables.min.css" rel="stylesheet">
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<!--<script src="{{STATIC_URL}}js/highcharts.js"></script>-->
+<!--<script src="{{STATIC_URL}}js/highcharts-zh_CN.js"></script>-->
+{% endblock %}
+
+    <div class="king-main-container">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <!-- 样例 Start -->
+                    <div class="king-widget1">
+                        <div class="icon-wrap">
+                            <span class="fa-stack king-bg-info">
+                                <i class="fa fa-flag fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </div>
+                        <div class="text-wrap">
+                            <a id="deploy_total" style="cursor:pointer;" data-toggle="modal" data-target=".bs-example-modal-lg"><h3 class="deploy_total">0</h3>
+                            <p>
+                                发布总数
+                            </p>
+                            </a>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <!-- 样例 End -->
+                </div>
+                <div class="col-sm-3">
+                    <!-- 样例 Start -->
+                    <div class="king-widget1">
+                        <div class="icon-wrap">
+                            <span class="fa-stack king-bg-danger">
+                                <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </div>
+                        <div class="text-wrap">
+                            <a id="servers" style="cursor:pointer;" data-toggle="modal" data-target="#connect_server"><h3 class="servers">0</h3>
+                            <p>
+                                已连接服务器
+                            </p>
+                            </a>
+                        </div>
+                        <div class="clear">
+                        </div>
+                    </div>
+                    <!-- 样例 End -->
+                </div>
+                <div class="col-sm-3">
+                    <!-- 样例 Start -->
+                    <div class="king-widget1">
+                        <div class="icon-wrap">
+                            <span class="fa-stack king-bg-success">
+                                <i class="fa fa-cloud-download fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </div>
+                        <div class="text-wrap">
+                            <a href="/s/yw_deploy/deploy/user_audit/1/"><h3 class="users">0</h3>
+                            <p>
+                                用户总数
+                            </p>
+                            </a>
+                        </div>
+                        <div class="clear">
+                        </div>
+                    </div>
+                    <!-- 样例 End -->
+                </div>
+                <div class="col-sm-3">
+                    <!-- 样例 Start -->
+                    <div class="king-widget1">
+                        <div class="icon-wrap">
+                            <span class="fa-stack king-bg-warning">
+                                <i class="fa fa-cloud-download fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </div>
+                        <div class="text-wrap">
+                            <a id="active_user" style="cursor:pointer;"  data-toggle="modal" data-target="#topn"><h3 class="active_user">p_nnanli</h3>
+                            <p>
+                                最近活跃用户
+                            </p>
+                            </a>
+                        </div>
+                        <div class="clear">
+                        </div>
+                    </div>
+                    <!-- 样例 End -->
+                </div>
+            </div>
+            <br>
+
+            <div style="margin: 0px;padding: 0px;">
+                <div id="container" style="width:60%;height:400px;float: left;border: 1px solid #ddd;"></div>
+                <div id="container1" style="width:39%;height:400px;float: right;border: 1px solid #ddd"></div>
+                <div style="clear: both"></div>
+            </div>
+
+            <div class="table-group mt20" style="height: 273px;border: 1px solid #ddd;">
+                <div class="table-title">
+                    <p style="font-size: 18px;padding-top: 10px;">&nbsp;&nbsp;最近5条任务操作记录</p>
+                </div>
+                <div class="list-group">
+                    <table class="table table-out-bordered table-header-bg table-hover">
+                        <thead>
+                            <tr>
+                                <th>任务ID</th>
+                                <th>操作日期</th>
+                                <th>操作用户</th>
+                                <th>操作主机数</th>
+                                <th>任务类型</th>
+                                <th>任务业务线</th>
+                                <th>任务内容</th>
+                                <th>任务成功数</th>
+                                <th>任务失败数</th>
+                                <th>任务未知数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="five">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            </div>
+    </div>
+
+
+<div id="large" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"  aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg" role="document" style="width: 1100px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">所有发布记录</h4>
+      </div>
+      <div class="modal-body">
+          <div class="table-responsive">
+            <table id="all_log" class="table table-header-bg table-hover">
+                <thead>
+                    <tr>
+                        <th>任务ID</th>
+                        <th>操作日期</th>
+                        <th>操作用户</th>
+                        <th>操作主机数</th>
+                        <th>任务类型</th>
+                        <th>任务业务线</th>
+                        <th>任务内容</th>
+                        <th>任务成功数</th>
+                        <th>任务失败数</th>
+                        <th>任务未知数</th>
+                    </tr>
+                </thead>
+                <tbody style="text-align: center;">
+                </tbody>
+            </table>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="topn" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">最近活跃用户</h4>
+      </div>
+      <div class="modal-body1">
+          <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                    <th style="text-align: center">活跃排名</th>
+                    <th style="text-align: center">用户名</th>
+                    <th style="text-align: center">发布数</th>
+                </tr>
+              </thead>
+              <tbody  style="text-align: center;">
+              </tbody>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="connect_server" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">已连接服务器</h4>
+      </div>
+      <div class="modal-body2">
+          <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                    <th style="text-align: center">IP列表</th>
+                    <th style="text-align: center">用户名列表</th>
+                </tr>
+              </thead>
+              <tbody  style="text-align: center;">
+              </tbody>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock %}
+
+{% block self_footer_js %}
+<script type="text/javascript">
+    function pieData(data) {
+        $('#container1').highcharts({
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false
+            },
+            title: {
+                text: '任务发布类型'
+            },
+            tooltip: {
+                headerFormat: '{series.name}<br>',
+                pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+//                    colors: ['#CC3333','#009966','#FF9900','#003399','#990066','#9933FF'],
+                    colors: ['rgb(128, 133, 233)','rgb(66, 139, 202)','rgb(241, 92, 128)','rgb(230, 125, 74)','rgb(242, 182, 97)','rgb(92, 184, 92)','rgb(91, 192, 222)'],
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                        }
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: '任务发布比率',
+                data: data
+            }]
+        });
+    }
+
+
+    function lineData(data) {
+        var data = data,
+            detailChart;
+        $(document).ready(function () {
+            // create the detail chart
+            function createDetail(masterChart) {
+                // prepare the detail chart
+                var detailData = [],
+                    detailStart = Date.UTC(2017, 5, 1);     //拆线的默认开始时间，5月，图上就显示的是6月
+                $.each(masterChart.series[0].data, function () {
+                    if (this.x >= detailStart) {
+                        detailData.push(this.y);
+                    }
+                });
+                // create a detail chart referenced by a global variable
+                detailChart = $('#detail-container').highcharts({
+                    chart: {
+                        marginBottom: 120,
+                        reflow: true,
+                        marginLeft: 50,
+                        marginRight: 20,
+                        style: {
+                            position: 'relative'
+                        }
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    title: {
+                        text: '任务发布趋势'
+                    },
+                    subtitle: {
+                        text: '通过拖动下方图表选择区域'
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        lables:{
+                          x: 46
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: null
+                        },
+                        maxZoom: 0.1
+                    },
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            marker: {
+                                enabled: false,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        radius: 3
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '任务发布数',
+                        pointStart: detailStart,
+                        pointInterval: 24 * 3600 * 1000,
+                        data: detailData
+                    }],
+                    exporting: {
+                        enabled: false
+                    }
+                }).highcharts(); // return chart
+            }
+            // create the master chart
+            function createMaster() {
+                $('#master-container').highcharts({
+                    chart: {
+                        reflow: true,
+                        borderWidth: 0,
+                        backgroundColor: null,
+                        marginLeft: 50,
+                        marginRight: 20,
+                        zoomType: 'x',
+                        events: {
+                            // listen to the selection event on the master chart to update the
+                            // extremes of the detail chart
+                            selection: function (event) {
+                                var extremesObject = event.xAxis[0],
+                                    min = extremesObject.min,
+                                    max = extremesObject.max,
+                                    detailData = [],
+                                    xAxis = this.xAxis[0];
+                                // reverse engineer the last part of the data
+                                $.each(this.series[0].data, function () {
+                                    if (this.x > min && this.x < max) {
+                                        detailData.push([this.x, this.y]);
+                                    }
+                                });
+                                // move the plot bands to reflect the new detail span
+                                xAxis.removePlotBand('mask-before');
+                                xAxis.addPlotBand({
+                                    id: 'mask-before',
+                                    from: Date.UTC(2006, 0, 1),
+                                    to: min,
+                                    color: 'rgba(0, 0, 0, 0.2)'
+                                });
+                                xAxis.removePlotBand('mask-after');
+                                xAxis.addPlotBand({
+                                    id: 'mask-after',
+                                    from: max,
+                                    to: Date.UTC(2008, 11, 31),
+                                    color: 'rgba(0, 0, 0, 0.2)'
+                                });
+                                detailChart.series[0].setData(detailData);
+                                return false;
+                            }
+                        }
+                    },
+                    title: {
+                        text: null
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        showLastTickLabel: true,
+                        maxZoom: 14 * 24 * 3600000, // fourteen days
+                        plotBands: [{
+                            id: 'mask-before',
+                            from: Date.UTC(2006, 0, 1),
+                            to: Date.UTC(2017, 7, 1),
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        }],
+                        title: {
+                            text: null
+                        }
+                    },
+                    yAxis: {
+                        gridLineWidth: 0,
+                        labels: {
+                            enabled: false
+                        },
+                        title: {
+                            text: null
+                        },
+                        min: 0.6,
+                        showFirstLabel: false
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return false;
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            fillColor: {
+                                linearGradient: [0, 0, 0, 70],
+                                stops: [
+                                    [0, Highcharts.getOptions().colors[0]],
+                                    [1, 'rgba(255,255,255,0)']
+                                ]
+                            },
+                            lineWidth: 1,
+                            marker: {
+                                enabled: false
+                            },
+                            shadow: false,
+                            states: {
+                                hover: {
+                                    lineWidth: 1
+                                }
+                            },
+                            enableMouseTracking: false
+                        }
+                    },
+                    series: [{
+                        type: 'area',
+                        name: 'USD to EUR',
+                        pointInterval: 24 * 3600 * 1000,
+                        pointStart: Date.UTC(2017, 5, 1),   //最下面选择时间区间的开始，5，代表6月
+                        data: data
+                    }],
+                    exporting: {
+                        enabled: false
+                    }
+                }, function (masterChart) {
+                    createDetail(masterChart);
+                })
+                    .highcharts(); // return chart instance
+            }
+            // make the container smaller and add a second container for the master chart
+            var $container = $('#container')
+                .css('position', 'relative');
+            $('<div id="detail-container">')
+                .appendTo($container);
+            $('<div id="master-container">')
+                .css({ position: 'absolute', top: 300, height: 100, width: '100%' })
+                .appendTo($container);
+            // create master and in its callback, create the detail chart
+            createMaster();
+        });
+    }
+
+    $.get('/s/yw_deploy/dashboard/data/', function (data) {
+                data = JSON.parse(data);
+
+                try{
+                    $(".deploy_total").html(data[5]["tasks_num"]);
+                    $(".servers").html(data[3][0]["ips_num"]);
+                    $(".users").html(data[0]["users_num"]);
+                    $(".active_user").html(data[2][0][0]);
+                }
+               catch(err){
+                    console.log(err)
+               }
+                datapie = [];
+               for(index in data[4]){
+                   if(index == "命令执行"){
+                       nginx =  {
+                            name: index,
+                            y: data[4][index],
+                            sliced: true,
+                            selected: true
+                        };
+                        datapie.push(nginx)
+                   }else{
+                        datapie.push([index, data[4][index]])
+                   }
+               }
+                pieData(datapie);
+
+                dataline = data[1]["task_details_num"];
+                lineData(dataline);
+
+                servers_html = "";
+                for (var i = 1; i < data[3].length; i++) {
+                    servers_html += "<tr><td>" + data[3][i]["ip"] + "</td><td>" + data[3][i]["user"] + "</td></tr>"
+                }
+                $("#connect_server tbody").html(servers_html);
+
+                $("#connect_server table").dataTable({
+                    language: {
+                        "sProcessing": "处理中...",
+                        "sLengthMenu": "显示 _MENU_ 项结果",
+                        "sZeroRecords": "没有匹配结果",
+                        "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                        "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                        "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                        "sInfoPostFix": "",
+                        "sSearch": "搜索:",
+                        "sUrl": "",
+                        "sEmptyTable": "表中数据为空",
+                        "sLoadingRecords": "载入中...",
+                        "sInfoThousands": ",",
+                        "oPaginate": {
+                            "sFirst": "首页",
+                            "sPrevious": "上页",
+                            "sNext": "下页",
+                            "sLast": "末页"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": 以升序排列此列",
+                            "sSortDescending": ": 以降序排列此列"
+                        }
+                    }
+                });
+                $(".modal-body2 > div").css("padding", "15px");
+
+                active_html = "";
+                for (var i = 1; i <= data[2].length; i++) {
+                    active_html += "<tr><td>" + i + "</td><td>" + data[2][i - 1][0] + "</td><td>" + data[2][i - 1][1] + "</td></tr>"
+                }
+                $("#topn tbody").html(active_html);
+
+                recent5_html = "";
+                var newData = data[6];
+                $.each(newData, function (key, val) {
+                    recent5_html += "<tr><td><a href={% url 'task_log_detail' %}?id=" + newData[key]['id'] + ">" + newData[key]['id'] + "</td>" + "<td>" + newData[key]['date'] + "</td>" + "<td>" + newData[key]['user'] + "</td>" + "<td>" + newData[key]['hosts'] + "</a></td>" + "<td>" + newData[key]['task_type'] + "</td>" + "<td>" + newData[key]['business'] + "</td>" + "<td>" + newData[key]['content'] + "</td>" + "<td>" + newData[key]['finished_num'] + "</td>" + "<td>" + newData[key]['failed_num'] + "</td>" + "<td>" + newData[key]['unknown_num'] + "</td></tr>";
+                    $("#five").html(recent5_html)
+                })
+            });
+
+
+    $.get("/s/yw_deploy/recent/tasks/", function (data) {
+                var data = JSON.parse(data);
+                var newData = [];
+                $.each(data,function (k,v) {
+                    var jsonText = JSON.stringify(v);
+                    var dataFilter = JSON.parse(jsonText, function (key,value) {
+                       if(key == "business"){
+                           if(value.split("-").length == 2){
+                                return value.split("-")[0] + "-" + value.split("-")[1]
+                           }else if(value.split("-").length == 3){
+                               return value.split("-")[0] + "-" + value.split("-")[1] + "-" + value.split("-")[2]
+                           }else {
+                               return value.split("-")[0]
+                           }
+                       }else{
+                           return value;
+                       }
+                    });
+                    newData.push(dataFilter)
+                });
+
+                $("#all_log").dataTable({
+                    language: {
+                        "sProcessing": "处理中...",
+                        "sLengthMenu": "显示 _MENU_ 项结果",
+                        "sZeroRecords": "没有匹配结果",
+                        "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                        "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                        "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                        "sInfoPostFix": "",
+                        "sSearch": "搜索:",
+                        "sUrl": "",
+                        "sEmptyTable": "表中数据为空",
+                        "sLoadingRecords": "载入中...",
+                        "sInfoThousands": ",",
+                        "oPaginate": {
+                            "sFirst": "首页",
+                            "sPrevious": "上页",
+                            "sNext": "下页",
+                            "sLast": "末页"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": 以升序排列此列",
+                            "sSortDescending": ": 以降序排列此列"
+                        }
+                    },
+                    "data": newData,
+                    "columns": [
+                        {
+                            "data": "id",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    data = '<a href=/s/yw_deploy/deploy/tasklog/detail/?id=' + data + '>' + data + '</a>';
+                                }
+                                return data;
+                            }
+                        },
+                        {"data": "date"},
+                        {"data": "user"},
+                        {"data": "hosts"},
+                        {"data": "task_type"},
+                        {"data": "business"},
+                        {"data": "content"},
+                        {"data": "finished_num"},
+                        {"data": "failed_num"},
+                        {"data": "unknown_num"}
+                    ]
+                });
+
+                // 解决只有第一页显示任务ID的链接要使用datatables的 columns.render API,即上面部分代码
+
+                //只能匹配到datatables的第一页的ID，从第二页开始就不行了
+
+//                html = "";
+//                $.each(newData, function (key, val) {
+//                    if (key < 5) {
+//                        html += "<tr><td><a href={% url 'task_log_detail' %}?id=" + newData[key]['id'] + ">" + newData[key]['id'] + "</td>" + "<td>" + newData[key]['date'] + "</td>" + "<td>" + newData[key]['user'] + "</td>" + "<td>" + newData[key]['hosts'] + "</a></td>" + "<td>" + newData[key]['task_type'] + "</td>" + "<td>" + newData[key]['business'] + "</td>" + "<td>" + newData[key]['content'] + "</td>" + "<td>" + newData[key]['finished_num'] + "</td>" + "<td>" + newData[key]['failed_num'] + "</td>" + "<td>" + newData[key]['unknown_num'] + "</td></tr>";
+//                        $("#five").html(html)
+//                    }
+//                })
+    });
+
+    $("#deploy_total").click("on", function () {
+        $("#large .modal-header").css({"position": 'static'});
+        $(".modal-body").load($("#all_log"));
+        $('#large').modal('show');
+        return false;
+    });
+
+    $("#servers").click("on", function () {
+        $("#connect_server .modal-header").css({"position": 'static'});
+        $('#connect_server').modal('show');
+        return false;
+    });
+
+    $("#active_user").click("on", function () {
+        $("#topn .modal-header").css({"position": 'static'});
+        $("#topn table").css({"width":"90%", "margin":"20px", "margin-left":"28px"});
+        $('#topn').modal('show');
+        return false;
+    });
+
+</script>
+{% endblock %}

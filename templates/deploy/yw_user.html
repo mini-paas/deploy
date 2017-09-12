@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load custom_tag %}
+{% block self_head_css_js %}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+
+
+<div class="king-main-container">
+    <div class="container-fluid">
+        <div class="panel panel-default pannel-overflow panel-list1">
+            <div class="panel-heading">
+                <i class="fa fa-list-ul"></i>用户列表
+            </div>
+            <div class="panel-body">
+                <div class="list-group bord-no p_account">
+                    {% for user in user_list %}
+                        <a data-label="username" user-id="{{ user.id }}" style="margin-left:2%;width:96%;color: black;" class="list-group-item  collapse" href="/s/yw_deploy/deploy/user_audit/{{ user.id }}/">&nbsp;&nbsp;&nbsp;{{ user.username }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default pannel-overflow panel-tables">
+            <div class="panel-heading">
+                <i class="fa fa-list-ul"></i><b>{{ user.username }}</b>的操作记录
+            </div>
+
+            <div class="panel-body" style="padding-top: 50px;">
+                <div class="panel-content">
+                    <div class="table-group mt20">
+                        <div class="list-group">
+                            <div class="table-responsive" style="overflow-x: hidden !important;">
+                                <table class="table table-out-bordered table-header-bg table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>任务ID</th>
+                                            <th>操作时间</th>
+                                            <th>任务主机数</th>
+                                            <th>任务类型</th>
+                                            <th>任务业务线</th>
+                                            <th>任务内容</th>
+                                            <th>任务详细</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in user_multi_task_record %}
+                                        <tr>
+                                            <td>{{ record.id }}</td>
+                                            <td>{{ record.start_time }}</td>
+                                            <td>{{ record.hosts.count }}</td>
+                                            <td>{{ record.task_type | stingsss }}</td>
+                                            <td>{{ record.task_business }}</td>
+                                            <td>{{ record.task_content }}</td>
+                                            <td><a class="badge badge-info" style="background-color: #5c90d2" href="{% url 'task_log_detail' %}?id={{record.id}}">查看详细</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="dataTables_info" id="editable_info" role="status" aria-live="polite">
+                                            Showing {{ user_multi_task_record.start_index }} to {{ user_multi_task_record.end_index }} of {{ p.count }} entries
+                                        </div>
+                                    </div>
+                                {% include 'paginator.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block self_footer_js %}
+<script type="text/javascript">
+     $(".p_account a[href='{{ request.path }}']").css("background-color", "#5c90d2").css("color","white");
+</script>
+{% endblock %}

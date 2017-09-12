@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block self_head_css_js %}
+<link href="{{STATIC_URL}}css/opration-log.css" rel="stylesheet">
+<link href="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/sumoselect.css" rel="stylesheet">
+<script src="http://open.oa.com/static_api/v3/assets/jquery.sumoselect-2.0.0/jquery.sumoselect.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/messages_zh.js"></script>
+<link href="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.css" rel="stylesheet">
+<script src="http://t.open.oa.com/static_api/v3/assets/select2-3.5.2/select2.js"></script>
+{% endblock %}
+
+{% block content %}
+
+   <div class="king-main-container">
+        <div class="container-fluid">
+
+            <div class="panel panel-default pannel-overflow">
+                <div class="panel-heading">
+                    <i class="fa fa-list-ul"></i>修改upstream
+                </div>
+                <div class="panel-body panel-tab-body pl20 pr20">
+                    <div class="panel-content">
+                        <ul class="nav nav-tabs" id="myTab">
+                            <li class="active">
+                                <a href="#file" data-toggle="tab">基本信息</a>
+                            </li>
+                            <!--<li>
+                                <a href="#bind" data-toggle="tab">配置绑定</a>
+                            </li>-->
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade king-block-content active in" id="file">
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <form id="upstream_edit" method="post" class="form-horizontal pt20">
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">upstream：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="upstream" class="form-control" name="upstream" value="{{ upstream.upstream_name }}">
+                                                    <p class="help-block">例如: bookcs.paygate.reader.qq.com</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">IP和PORT：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="ip_port" class="form-control" name="ip_port" value="{{ upstream.ip_port }}">
+                                                    <p class="help-block">例如: 10.120.106.138:80</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">weight：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="weight" class="form-control" name="weight" value="{{ upstream.weight }}">
+                                                    <p class="help-block">权重,例如: 100</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">max_fails：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="max_fails" class="form-control" name="max_fails" value="{{ upstream.max_fails }}">
+                                                    <p class="help-block">请求失败次数,例如: 3</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">fail_timeout：</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="fail_timeout" class="form-control" name="fail_timeout" value="{{ upstream.fail_timeout }}">
+                                                    <p class="help-block">暂停服务时间,例如:  30s</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="plugin3_demo mr10" id="plugin3_demo7" style="display:inline-block;padding-bottom: 20px;margin-left: 17%;">
+                                                <input type="hidden" class="bigdrop" id="plugin3_demo7_1" value="" style="width:300px;">
+                                                <input type="hidden" class="bigdrop" id="plugin3_demo7_2" value="" style="width:300px;">
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <div class="col-sm-10 col-sm-offset-2">
+                                                    <button type="button" class="king-btn king-primary mr10 save">保存</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script type="text/javascript">
+    $('#sumoselect_demo3 select').SumoSelect({
+        okCancelInMulti: true
+    });
+
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'infor_list' %}']").parent().parent().css('display', 'block');
+    $(".king-vertical-nav4 ul ul li a[href='{% url 'upstream_list' %}']").parent().addClass('active');
+
+    $("#upstream_edit").validate({
+        rules: {
+          upstream: {
+            required: true
+          },
+          ip_port: {
+            required: true
+          },
+          infors: {
+            required: true
+          }
+        },
+        messages: {
+          upstream: {
+            required: "请填写upstream名称"
+          },
+          ip_port: {
+            required: "请填写IP:port"
+          },
+          infors: {
+            required: "请选择配置名称"
+          }
+        }
+    });
+
+        $.ajax({
+        type: 'get',
+        url: '/s/yw_deploy/deploy/api/conf_list/',
+        async:false,
+        success: function (data) {
+            levelList = JSON.parse(data);
+        }
+    });
+
+    $('#plugin3_demo7_1').select2({
+        data : levelList,
+        placeholder: "选择配置组"
+    });
+    $('#plugin3_demo7_2').select2({
+        data : [],
+        placeholder: "选择配置"
+    });
+    $("#plugin3_demo7_1").on("change", function(e) {
+        var data = $('#plugin3_demo7_1').select2('data');
+
+        if(data.child){
+            $('#plugin3_demo7_2').val('');
+            $('#plugin3_demo7_2').select2({
+                data : data.child,
+                placeholder: "选择配置"
+            });
+        }
+    });
+
+    edit_id = window.location.href.split("=")[1];
+    $.ajax({
+        type: 'get',
+        url: '/s/yw_deploy/nginx/upstream/edit/get/?id=' + edit_id,
+        async: false,
+        success: function (data) {
+            data = JSON.parse(data);
+            groups = data['groups'];
+            infors = data['infors']
+        }
+    });
+    $("#plugin3_demo7_1").select2("data", {text: groups});
+    $("#plugin3_demo7_2").select2("data", {text: infors});
+
+    $(".save").click('on', function () {
+        if($('#plugin3_demo7_1').select2("data")['text'] == '' || $('#plugin3_demo7_2').select2("data")['text'] == ''){
+//            swal("配置不能为空", "", "error");
+            var d = dialog({
+                width: 260,
+                title: '配置不能为空',
+                content: "配置不能为空",
+                okValue: '关闭',
+                ok: function() {
+                    // do something
+                }
+            });
+            d.showModal();
+            return false;
+        }
+
+        $.post(window.location.href,{"upstreams":JSON.stringify({"upstream": $("#upstream").val(), "ip_port": $("#ip_port").val(), "weight": $("#weight").val(), "max_fails": $("#max_fails").val(), "fail_timeout": $("#fail_timeout").val(), "groups": $("#plugin3_demo7_1").select2("data")['text'], "infors": $("#plugin3_demo7_2").select2("data")['text']})},function () {
+            window.location.href = '/s/yw_deploy/nginx/upstream/list/?id=' + edit_id;
+        })
+    })
+</script>
+
+{% endblock %}
