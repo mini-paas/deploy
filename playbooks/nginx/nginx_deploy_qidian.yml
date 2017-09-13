@@ -1,0 +1,26 @@
+- name: nginx_conf delpoy
+  hosts: deploy
+  user: mqq
+  #sudo: yes
+  gather_facts: False
+  vars:
+    upstreams: "{{ upstreams }}"
+    upstream:  "{{ upstream }}"
+    servers:   "{{ servers }}"
+    server_ssls: "{{ server_ssls }}"
+    locations: "{{ locations }}"
+  tasks:
+    - name: copy nginx
+      template: 
+        src: nginx.conf.j2 
+        dest: /data/env/runtime/nginx/conf/conf.d/{{ upstream.upstream_name }}.conf 
+        owner: mqq 
+        group: mqq 
+        mode: 0644 
+        backup: Yes
+      
+      #notify:
+      #  - reload nginx_conf
+  #handlers:
+    - name: reload nginx_conf
+      shell: sudo service nginx reload

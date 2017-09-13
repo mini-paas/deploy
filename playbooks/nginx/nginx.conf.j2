@@ -1,0 +1,62 @@
+upstream   {{ upstream.upstream_name }}  {
+{% for upstream in upstreams %}
+   server  {{ upstream.ip_port }} weight={{ upstream.weight }} max_fails={{ upstream.max_fails }} fail_timeout={{ upstream.fail_timeout }};
+{% endfor %}
+}
+
+
+server {
+    listen        {{ servers.listen_post }};
+    server_name   {{ servers.server_name }};
+    gzip          {{ servers.gzip }};
+
+    access_log    {{ servers.access_log }}
+    error_log     {{ servers.error_log  }}
+
+    location {{ locations.location_name }}  {
+        {{ locations.proxy_set_header }}
+        proxy_pass         {{ locations.proxy_pass }}
+        proxy_connect_timeout {{ locations.proxy_connect_timeout }}
+    {% if locations.proxy_cache %}
+        proxy_cache      {{ locations.proxy_cache }}
+    {% endif %}
+    {% if locations.fastcgi %}
+        fastcgi      {{ locations.fastcgi }}
+    {% endif %}
+    {% if locations.other_location %}
+        other_location      {{ locations.other_location }}
+    {% endif %}
+    }
+}
+
+
+server {
+    listen        {{ server_ssls.listen_post }};
+    server_name   {{ server_ssls.server_ssl_name }};
+
+    ssl                  {{ server_ssls.ssl }};
+    ssl_certificate      {{ server_ssls.ssl_certificate }}
+    ssl_certificate_key  {{ server_ssls.ssl_certificate_key }}
+    ssl_session_timeout  {{ server_ssls.ssl_session_timeout }}
+    ssl_protocols        {{ server_ssls.ssl_protocols }}
+    ssl_ciphers          {{ server_ssls.ssl_ciphers }}
+    ssl_prefer_server_ciphers   {{ server_ssls.ssl_prefer_server_ciphers }};
+
+    access_log  {{ server_ssls.access_log }}
+    error_log   {{ server_ssls.error_log  }}
+
+    location {{ locations.location_name }}  {
+        {{ locations.proxy_set_header }}
+        proxy_pass         {{ locations.proxy_pass }}
+        proxy_connect_timeout {{ locations.proxy_connect_timeout }}
+    {% if locations.proxy_cache %}
+        proxy_cache      {{ locations.proxy_cache }}
+    {% endif %}
+    {% if locations.fastcgi %}
+        fastcgi      {{ locations.fastcgi }}
+    {% endif %}
+    {% if locations.other_location %}
+        other_location      {{ locations.other_location }}
+    {% endif %}
+    }
+}

@@ -1,0 +1,26 @@
+- name: nginx_conf test
+  hosts: deploy
+  user: mqq
+  #sudo: True
+  #remote_user: root
+  gather_facts: False
+  vars:
+    upstreams: "{{ upstreams }}"
+    upstream:  "{{ upstream }}"
+    servers:   "{{ servers }}"
+    server_ssls: "{{ server_ssls }}"
+    locations: "{{ locations }}"
+  tasks:
+    #- name: remove nginx
+    #  shell: rm -rf /usr/local/nginx/conf/conf.d/{{ upstream.upstream_name }}.conf
+    - name: configuration nginx
+      template: src=nginx.conf.j2 dest=/usr/local/nginx/conf/conf.d/{{ upstream.upstream_name }}.conf  owner=mqq group=mqq mode=0644
+    - name: test nginx_conf
+      command: sudo /usr/local/nginx/bin/nginx_ss.sh configtest /usr/local/nginx/conf/conf.d/{{ upstream.upstream_name }}.conf
+    - name: remove nginx
+      shell: rm -rf /usr/local/nginx/conf/conf.d/{{ upstream.upstream_name }}.conf
+      #notify:
+        #- test nginx_conf
+  #  handlers:
+  #    - name: test nginx_conf
+  #      shell: /usr/local/bin/nginx -t -c /usr/local/etc/nginx/nginx.conf
